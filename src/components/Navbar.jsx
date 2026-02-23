@@ -3,15 +3,18 @@ import { Link } from 'react-router-dom';
 import { FaShoppingCart, FaUserCircle, FaMapMarkerAlt } from 'react-icons/fa';
 import { HiLocationMarker } from 'react-icons/hi';
 import useGeolocation from '../hooks/useGeolocation';
+import { useDispatch } from 'react-redux';
+import { openAccountSidebar } from '../redux/actions/uiActions';
 
 const Navbar = () => {
+  const dispatch = useDispatch();
   const location = useGeolocation();
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          
+
           {/* Left Side - Delivery Location */}
           <div className="flex items-center space-x-2 flex-1">
             <HiLocationMarker className="text-red-500 text-xl flex-shrink-0" />
@@ -33,8 +36,8 @@ const Navbar = () => {
           {/* Right Side - Cart & Account */}
           <div className="flex items-center space-x-4">
             {/* Cart Icon */}
-            <Link 
-              to="/cart" 
+            <Link
+              to="/cart"
               className="relative p-2 hover:bg-gray-100 rounded-full transition group"
             >
               <FaShoppingCart className="text-2xl text-gray-700 group-hover:text-red-500 transition" />
@@ -45,12 +48,12 @@ const Navbar = () => {
             </Link>
 
             {/* Account Icon */}
-            <Link 
-              to="/account" 
-              className="p-2 hover:bg-gray-100 rounded-full transition group"
+            <button
+              onClick={() => dispatch(openAccountSidebar())}
+              className="p-2 hover:bg-gray-100 rounded-full transition group focus:outline-none"
             >
               <FaUserCircle className="text-2xl text-gray-700 group-hover:text-red-500 transition" />
-            </Link>
+            </button>
           </div>
         </div>
       </div>
