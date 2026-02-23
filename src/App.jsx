@@ -1,10 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import  store  from './redux/store';
+import store from './redux/store';
 import Navbar from './components/Navbar';
 import AccountSidebar from './components/AccountSidebar';
-// ... other imports
+import HomePage from './pages/HomePage';  // ✅ Import HomePage
+
+// Import other pages (will create later)
+// import CartPage from './pages/CartPage';
+// import AccountPage from './pages/AccountPage';
 
 function App() {
   return (
@@ -15,9 +19,12 @@ function App() {
           <AccountSidebar />
           <main className="min-h-screen">
             <Routes>
-              <Route path="/" element={<div>Home Page - Coming Soon</div>} />
-              <Route path="/cart" element={<div>Cart Page - Coming Soon</div>} />
-              <Route path="/account/*" element={<div>Account Page - Coming Soon</div>} />
+              {/* Home Route - ab HomePage render hoga */}
+              <Route path="/" element={<HomePage />} />
+              
+              {/* Other routes - commented for now */}
+              {/* <Route path="/cart" element={<CartPage />} /> */}
+              {/* <Route path="/account/*" element={<AccountPage />} /> */}
             </Routes>
           </main>
         </div>

@@ -5,10 +5,15 @@ import { HiLocationMarker } from 'react-icons/hi';
 import useGeolocation from '../hooks/useGeolocation';
 import { useDispatch } from 'react-redux';
 import { openAccountSidebar } from '../redux/actions/uiActions';
+import { useSelector } from 'react-redux';
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const location = useGeolocation();
+
+  // Get cart items count from Redux
+  const cartItems = useSelector((state) => state.cart.cartItems);
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -41,10 +46,11 @@ const Navbar = () => {
               className="relative p-2 hover:bg-gray-100 rounded-full transition group"
             >
               <FaShoppingCart className="text-2xl text-gray-700 group-hover:text-red-500 transition" />
-              {/* Cart Badge - Will update later with Redux */}
-              {/* <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                0
-              </span> */}
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </Link>
 
             {/* Account Icon */}
