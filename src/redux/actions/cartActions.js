@@ -9,7 +9,7 @@ import {
 export const addToCart = (item) => (dispatch, getState) => {
   dispatch({
     type: ADD_TO_CART,
-    payload: item
+    payload: { ...item, quantity: 1 }
   });
 
   // Save to localStorage
@@ -28,10 +28,15 @@ export const removeFromCart = (id) => (dispatch, getState) => {
 
 // Update quantity
 export const updateCartQuantity = (id, quantity) => (dispatch, getState) => {
-  dispatch({
-    type: UPDATE_CART_QUANTITY,
-    payload: { id, quantity }
-  });
+  if (quantity < 1) {
+    // Agar quantity 0 ho jaye to item remove kar do
+    dispatch(removeFromCart(id));
+  } else {
+    dispatch({
+      type: UPDATE_CART_QUANTITY,
+      payload: { id, quantity }
+    });
+  }
 
   localStorage.setItem('cartItems', JSON.stringify(getState().cart.cartItems));
 };

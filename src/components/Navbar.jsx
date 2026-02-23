@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaShoppingCart, FaUserCircle, FaMapMarkerAlt } from 'react-icons/fa';
 import { HiLocationMarker } from 'react-icons/hi';
@@ -6,6 +6,7 @@ import useGeolocation from '../hooks/useGeolocation';
 import { useDispatch } from 'react-redux';
 import { openAccountSidebar } from '../redux/actions/uiActions';
 import { useSelector } from 'react-redux';
+import MiniCart from '../components/MiniCart';
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -14,6 +15,9 @@ const Navbar = () => {
   // Get cart items count from Redux
   const cartItems = useSelector((state) => state.cart.cartItems);
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+   // ✅ State for showing/hiding mini cart
+  const [showMiniCart, setShowMiniCart] = useState(false);
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -40,21 +44,34 @@ const Navbar = () => {
 
           {/* Right Side - Cart & Account */}
           <div className="flex items-center space-x-4">
-            {/* Cart Icon */}
-            <Link
-              to="/cart"
-              className="relative p-2 hover:bg-gray-100 rounded-full transition group"
+            {/* ✅ Cart Icon with Hover MiniCart */}
+            <div 
+              className="relative"
+              onMouseEnter={() => setShowMiniCart(true)}
+              onMouseLeave={() => setShowMiniCart(false)}
             >
-              <FaShoppingCart className="text-2xl text-gray-700 group-hover:text-red-500 transition" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartCount}
-                </span>
+              <Link 
+                to="/cart" 
+                className="relative p-2 hover:bg-gray-100 rounded-full transition group block"
+              >
+                <FaShoppingCart className="text-2xl text-gray-700 group-hover:text-red-500 transition" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+
+              {/* ✅ Mini Cart Dropdown - Hover par dikhega */}
+              {showMiniCart && (
+                <div className="absolute top-12 right-0 z-50">
+                  <MiniCart />
+                </div>
               )}
-            </Link>
+            </div>
 
             {/* Account Icon */}
-            <button
+            <button 
               onClick={() => dispatch(openAccountSidebar())}
               className="p-2 hover:bg-gray-100 rounded-full transition group focus:outline-none"
             >

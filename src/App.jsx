@@ -5,6 +5,7 @@ import store from './redux/store';
 import Navbar from './components/Navbar';
 import AccountSidebar from './components/AccountSidebar';
 import HomePage from './pages/HomePage';  // ✅ Import HomePage
+import CartPage from './pages/CartPage'; 
 
 // Import other pages (will create later)
 // import CartPage from './pages/CartPage';
@@ -21,6 +22,7 @@ function App() {
             <Routes>
               {/* Home Route - ab HomePage render hoga */}
               <Route path="/" element={<HomePage />} />
+              <Route path="/cart" element={<CartPage />} />
               
               {/* Other routes - commented for now */}
               {/* <Route path="/cart" element={<CartPage />} /> */}
