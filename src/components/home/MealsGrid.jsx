@@ -8,55 +8,55 @@ const mealsData = [
   {
     id: 201,
     name: 'Special Thali',
-    image: '/images/simple-meals/special-thali.jpg',
+    image: '/images/simple-meals/banner1.webp',
     price: 249
   },
   {
     id: 202,
     name: 'Deluxe Thali',
-    image: '/images/simple-meals/deluxe-thali.jpg',
+    image: '/images/simple-meals/banner2.webp',
     price: 199
   },
   {
     id: 203,
     name: 'Classic Thali',
-    image: '/images/simple-meals/classic-thali.jpg',
+    image: '/images/simple-meals/banner3.webp',
     price: 149
   },
   {
     id: 204,
     name: 'Special Thali',
-    image: '/images/simple-meals/special-thali.jpg',
+    image: '/images/simple-meals/banner4.webp',
     price: 249
   },
   {
     id: 205,
     name: 'Deluxe Thali',
-    image: '/images/simple-meals/deluxe-thali.jpg',
+    image: '/images/simple-meals/banner5.webp',
     price: 199
   },
   {
     id: 206,
     name: 'Classic Thali',
-    image: '/images/simple-meals/classic-thali.jpg',
+    image: '/images/simple-meals/banner6.webp',
     price: 149
   },
   {
     id: 207,
     name: 'Special Thali',
-    image: '/images/simple-meals/special-thali.jpg',
+    image: '/images/simple-meals/banner1.webp',
     price: 249
   },
   {
     id: 208,
     name: 'Deluxe Thali',
-    image: '/images/simple-meals/deluxe-thali.jpg',
+    image: '/images/simple-meals/banner2.webp',
     price: 199
   },
   {
     id: 209,
     name: 'Classic Thali',
-    image: '/images/simple-meals/classic-thali.jpg',
+    image: '/images/simple-meals/banner3.webp',
     price: 149
   }
 ];
