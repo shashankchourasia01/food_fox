@@ -1,7 +1,7 @@
 import React from 'react';
 import HeroBanner from '../components/home/HeroBanner';
 import SpecialOffers from '../components/home/SpecialOffers';
-import MealsGrid from '../components/home/MealsGrid';
+import ExploreMenu from '../components/home/ExploreMenu';
 // We'll create these components next
 
 const HomePage = () => {
@@ -12,7 +12,7 @@ const HomePage = () => {
       {/* Special Offers Section - Dish of the Day */}
       <SpecialOffers />
       {/* Meals Grid Section - NEW */}
-      <MealsGrid />
+      <ExploreMenu />
     </div>
   );
 };
