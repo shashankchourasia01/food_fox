@@ -93,7 +93,9 @@ const Reviews = () => {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          opacity: '0.55' // Light overlay effect
+          opacity: '0.55', // Light overlay effect
+          minHeight: '100%',
+          width: '100%'
         }}
       />
       

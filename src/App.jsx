@@ -4,7 +4,8 @@ import { Provider } from 'react-redux';
 import store from './redux/store';
 import Navbar from './components/Navbar';
 import AccountSidebar from './components/AccountSidebar';
-import HomePage from './pages/HomePage';  // ✅ Import HomePage
+import HomePage from './pages/HomePage';
+import Footer from './components/Footer';
 import CartPage from './pages/CartPage'; 
 import LocationPage from './pages/LocationPage';
 
@@ -31,6 +32,7 @@ function App() {
               {/* <Route path="/account/*" element={<AccountPage />} /> */}
             </Routes>
           </main>
+          <Footer />
         </div>
       </Router>
     </Provider>
