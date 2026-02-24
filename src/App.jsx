@@ -6,6 +6,7 @@ import Navbar from './components/Navbar';
 import AccountSidebar from './components/AccountSidebar';
 import HomePage from './pages/HomePage';  // ✅ Import HomePage
 import CartPage from './pages/CartPage'; 
+import LocationPage from './pages/LocationPage';
 
 // Import other pages (will create later)
 // import CartPage from './pages/CartPage';
@@ -23,6 +24,7 @@ function App() {
               {/* Home Route - ab HomePage render hoga */}
               <Route path="/" element={<HomePage />} />
               <Route path="/cart" element={<CartPage />} />
+              <Route path="/location" element={<LocationPage />} />
               
               {/* Other routes - commented for now */}
               {/* <Route path="/cart" element={<CartPage />} /> */}

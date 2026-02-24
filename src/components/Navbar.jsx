@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { openAccountSidebar } from '../redux/actions/uiActions';
 import { useSelector } from 'react-redux';
 import MiniCart from '../components/MiniCart';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -19,13 +20,18 @@ const Navbar = () => {
    // ✅ State for showing/hiding mini cart
   const [showMiniCart, setShowMiniCart] = useState(false);
 
+  const navigate = useNavigate(); 
+
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
           {/* Left Side - Delivery Location */}
-          <div className="flex items-center space-x-2 flex-1">
+          <div 
+            className="flex items-center space-x-2 flex-1 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition"
+            onClick={() => navigate('/location')} // Add navigation
+          >
             <HiLocationMarker className="text-red-500 text-xl flex-shrink-0" />
             <div className="flex flex-col">
               <span className="text-xs text-gray-500">Deliver to</span>
@@ -37,7 +43,7 @@ const Navbar = () => {
                     location.address
                   )}
                 </span>
-                <FaMapMarkerAlt className="text-gray-400 text-xs cursor-pointer hover:text-red-500 transition" />
+                <FaMapMarkerAlt className="text-gray-400 text-xs" />
               </div>
             </div>
           </div>
