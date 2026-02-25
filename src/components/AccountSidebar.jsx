@@ -60,7 +60,7 @@ const AccountSidebar = () => {
     label: 'Help', 
     onClick: () => {
   const message = encodeURIComponent("Hi! I need help with my order.");
-  window.open(`https://wa.me/919060321297?text=${message}`, '_blank');
+  window.open(`https://wa.me/919229264244?text=${message}`, '_blank');
 }
   },
   { icon: <FaShoppingBag />, label: 'My Orders', path: '/account/orders' },
