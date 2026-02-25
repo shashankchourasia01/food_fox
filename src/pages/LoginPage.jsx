@@ -1,0 +1,323 @@
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { FaArrowLeft, FaUser, FaPhone, FaLock, FaWhatsapp } from 'react-icons/fa';
+import { MdMessage, MdTimer } from 'react-icons/md';
+import { sendOTP, verifyOTP } from '../redux/actions/authActions';
+
+const LoginPage = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user, loading, otpSent, otpLoading } = useSelector((state) => state.auth);
+
+  // Form states
+  const [step, setStep] = useState(1); // 1: name, 2: phone, 3: otp
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    otp: ['', '', '', ''] // 4 digit OTP
+  });
+  const [timer, setTimer] = useState(30);
+  const [canResend, setCanResend] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
+
+  // Timer for OTP resend
+  useEffect(() => {
+    let interval;
+    if (otpSent && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (timer === 0) {
+      setCanResend(true);
+    }
+    return () => clearInterval(interval);
+  }, [otpSent, timer]);
+
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle OTP input
+  const handleOTPChange = (index, value) => {
+    if (value.length > 1) return; // Only single digit
+    
+    const newOTP = [...formData.otp];
+    newOTP[index] = value;
+    setFormData(prev => ({
+      ...prev,
+      otp: newOTP
+    }));
+
+    // Auto-focus next input
+    if (value && index < 3) {
+      const nextInput = document.getElementById(`otp-${index + 1}`);
+      if (nextInput) nextInput.focus();
+    }
+  };
+
+  // Handle OTP keydown (backspace)
+  const handleOTPKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !formData.otp[index] && index > 0) {
+      const prevInput = document.getElementById(`otp-${index - 1}`);
+      if (prevInput) prevInput.focus();
+    }
+  };
+
+  // Handle next step
+  const handleNext = () => {
+    if (step === 1 && formData.name.trim()) {
+      setStep(2);
+    } else if (step === 2 && formData.phone.length === 10) {
+      // Send OTP
+      dispatch(sendOTP(formData.phone));
+      setStep(3);
+      setTimer(30);
+      setCanResend(false);
+    }
+  };
+
+  // Handle OTP verification
+  const handleVerify = () => {
+    const otpString = formData.otp.join('');
+    if (otpString.length === 4) {
+      // For demo, any 4-digit OTP works
+      dispatch(verifyOTP(otpString, formData.name, formData.phone));
+    }
+  };
+
+  // Handle resend OTP
+  const handleResend = () => {
+    if (canResend) {
+      dispatch(sendOTP(formData.phone));
+      setTimer(30);
+      setCanResend(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 py-6 sm:py-8">
+      <div className="container mx-auto px-4">
+        {/* Header with Back Button */}
+        <div className="flex items-center gap-4 mb-6">
+          <button
+            onClick={() => step === 1 ? navigate(-1) : setStep(step - 1)}
+            className="p-2 hover:bg-white rounded-full transition"
+          >
+            <FaArrowLeft className="text-gray-600" />
+          </button>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+            {step === 1 && "What's your name?"}
+            {step === 2 && "Your phone number?"}
+            {step === 3 && "Verify OTP"}
+          </h1>
+        </div>
+
+        {/* Main Card */}
+        <div className="max-w-md mx-auto">
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            
+            {/* Progress Bar */}
+            <div className="h-1 bg-gray-100">
+              <div 
+                className="h-full bg-red-500 transition-all duration-500"
+                style={{ width: `${(step / 3) * 100}%` }}
+              ></div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 sm:p-8">
+              
+              {/* Step 1: Name Input */}
+              {step === 1 && (
+                <div className="space-y-6">
+                  <div className="text-center mb-8">
+                    <div className="w-20 h-20 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
+                      <FaUser className="text-4xl text-red-500" />
+                    </div>
+                    <p className="text-gray-600">
+                      Please enter your name to continue
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Your Name
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="e.g., John Doe"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      autoFocus
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleNext}
+                    disabled={!formData.name.trim()}
+                    className={`w-full py-4 rounded-xl font-semibold text-lg transition
+                      ${formData.name.trim() 
+                        ? 'bg-red-500 hover:bg-red-600 text-white transform hover:scale-[1.02]' 
+                        : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
+                  >
+                    Continue
+                  </button>
+                </div>
+              )}
+
+              {/* Step 2: Phone Input */}
+              {step === 2 && (
+                <div className="space-y-6">
+                  <div className="text-center mb-8">
+                    <div className="w-20 h-20 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
+                      <FaPhone className="text-4xl text-red-500" />
+                    </div>
+                    <p className="text-gray-600">
+                      We'll send a 4-digit OTP to verify
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Phone Number
+                    </label>
+                    <div className="flex">
+                      <span className="inline-flex items-center px-4 bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg text-gray-600">
+                        +91
+                      </span>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        placeholder="9876543210"
+                        maxLength="10"
+                        className="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        autoFocus
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Enter 10-digit mobile number
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={handleNext}
+                    disabled={formData.phone.length !== 10}
+                    className={`w-full py-4 rounded-xl font-semibold text-lg transition
+                      ${formData.phone.length === 10
+                        ? 'bg-red-500 hover:bg-red-600 text-white transform hover:scale-[1.02]' 
+                        : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
+                  >
+                    Send OTP
+                  </button>
+                </div>
+              )}
+
+              {/* Step 3: OTP Verification */}
+              {step === 3 && (
+                <div className="space-y-6">
+                  <div className="text-center mb-8">
+                    <div className="w-20 h-20 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
+                      <FaLock className="text-4xl text-red-500" />
+                    </div>
+                    <p className="text-gray-600">
+                      Enter 4-digit OTP sent to
+                    </p>
+                    <p className="font-semibold text-gray-800">
+                      +91 {formData.phone}
+                    </p>
+                  </div>
+
+                  {/* OTP Input Boxes */}
+                  <div className="flex justify-center gap-3">
+                    {[0, 1, 2, 3].map((index) => (
+                      <input
+                        key={index}
+                        id={`otp-${index}`}
+                        type="text"
+                        maxLength="1"
+                        value={formData.otp[index]}
+                        onChange={(e) => handleOTPChange(index, e.target.value)}
+                        onKeyDown={(e) => handleOTPKeyDown(index, e)}
+                        className="w-14 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:border-red-500 focus:outline-none"
+                        autoFocus={index === 0}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Timer and Resend */}
+                  <div className="text-center">
+                    {!canResend ? (
+                      <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
+                        <MdTimer className="text-red-500" />
+                        Resend OTP in {timer}s
+                      </p>
+                    ) : (
+                      <button
+                        onClick={handleResend}
+                        className="text-red-500 hover:text-red-600 font-semibold text-sm"
+                      >
+                        Resend OTP
+                      </button>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={handleVerify}
+                    disabled={formData.otp.join('').length !== 4 || loading}
+                    className={`w-full py-4 rounded-xl font-semibold text-lg transition
+                      ${formData.otp.join('').length === 4 && !loading
+                        ? 'bg-red-500 hover:bg-red-600 text-white transform hover:scale-[1.02]' 
+                        : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
+                  >
+                    {loading ? 'Verifying...' : 'Verify & Login'}
+                  </button>
+
+                  {/* WhatsApp Option */}
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-white text-gray-500">Or</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => window.open('https://wa.me/919876543210', '_blank')}
+                    className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition"
+                  >
+                    <FaWhatsapp className="text-xl" />
+                    Continue with WhatsApp
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Terms */}
+          <p className="text-xs text-center text-gray-500 mt-6">
+            By continuing, you agree to our Terms of Service and Privacy Policy
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;

@@ -9,10 +9,8 @@ import Footer from './components/Footer';
 import CartPage from './pages/CartPage'; 
 import LocationPage from './pages/LocationPage';
 import FeedbackPage from './pages/FeedbackPage';
+import LoginPage from './pages/LoginPage';
 
-// Import other pages (will create later)
-// import CartPage from './pages/CartPage';
-// import AccountPage from './pages/AccountPage';
 
 function App() {
   return (
@@ -28,6 +26,7 @@ function App() {
               <Route path="/cart" element={<CartPage />} />
               <Route path="/location" element={<LocationPage />} />
               <Route path="/feedback" element={<FeedbackPage />} />
+              <Route path="/login" element={<LoginPage />} />
               
               {/* Other routes - commented for now */}
               {/* <Route path="/cart" element={<CartPage />} /> */}

@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { closeAccountSidebar } from '../redux/actions/uiActions';
-import { 
-  FaUserCircle, 
-  FaMapMarkerAlt, 
-  FaWallet, 
+import {
+  FaUserCircle,
+  FaMapMarkerAlt,
+  FaWallet,
   FaShoppingBag,
   FaSignOutAlt,
   FaTimes,
@@ -51,28 +51,28 @@ const AccountSidebar = () => {
   };
 
   const menuItems = [
-  { icon: <MdDashboard />, label: 'My Account', path: '/account/dashboard' },
-  { icon: <FaMapMarkerAlt />, label: 'Manage Address', onClick: handleManageAddress },
-  { icon: <FaGift />, label: 'Cashback', path: '/account/cashback' },
-  { icon: <FaWallet />, label: 'Wallet', path: '/account/wallet' },
-  { 
-    icon: <MdHelp />, 
-    label: 'Help', 
-    onClick: () => {
-  const message = encodeURIComponent("Hi! I need help with my order.");
-  window.open(`https://wa.me/919229264244?text=${message}`, '_blank');
-}
-  },
-  { icon: <FaShoppingBag />, label: 'My Orders', path: '/account/orders' },
-  { icon: <FaRegCommentDots />, label: 'Feedback', path: '/feedback' },
-];
+    { icon: <MdDashboard />, label: 'My Account', path: '/account/dashboard' },
+    { icon: <FaMapMarkerAlt />, label: 'Manage Address', onClick: handleManageAddress },
+    { icon: <FaGift />, label: 'Cashback', path: '/account/cashback' },
+    { icon: <FaWallet />, label: 'Wallet', path: '/account/wallet' },
+    {
+      icon: <MdHelp />,
+      label: 'Help',
+      onClick: () => {
+        const message = encodeURIComponent("Hi! I need help with my order.");
+        window.open(`https://wa.me/919229264244?text=${message}`, '_blank');
+      }
+    },
+    { icon: <FaShoppingBag />, label: 'My Orders', path: '/account/orders' },
+    { icon: <FaRegCommentDots />, label: 'Feedback', path: '/feedback' },
+  ];
 
   if (!isAccountSidebarOpen) return null;
 
   return (
     <>
       {/* Overlay */}
-      <div 
+      <div
         className="fixed inset-0 bg-black bg-opacity-50 z-50 transition-opacity"
         onClick={() => dispatch(closeAccountSidebar())}
       />
@@ -93,7 +93,7 @@ const AccountSidebar = () => {
                 <p className="text-sm opacity-90">Welcome back!</p>
               </div>
             </div>
-            <button 
+            <button
               onClick={() => dispatch(closeAccountSidebar())}
               className="p-1 hover:bg-white hover:bg-opacity-20 rounded-full transition"
             >
@@ -121,7 +121,7 @@ const AccountSidebar = () => {
                 </button>
               );
             }
-            
+
             return (
               <Link
                 key={index}
@@ -140,11 +140,12 @@ const AccountSidebar = () => {
           })}
 
           {/* Login/Signup Button */}
+
           <div className="px-6 mt-6">
-            <button 
+            <button
               onClick={() => {
                 dispatch(closeAccountSidebar());
-                // Add navigation later
+                navigate('/login'); // ✅ Add navigation
               }}
               className="w-full bg-red-500 text-white py-3 rounded-lg font-semibold hover:bg-red-600 transition flex items-center justify-center space-x-2"
             >
