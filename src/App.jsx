@@ -8,6 +8,7 @@ import HomePage from './pages/HomePage';
 import Footer from './components/Footer';
 import CartPage from './pages/CartPage'; 
 import LocationPage from './pages/LocationPage';
+import FeedbackPage from './pages/FeedbackPage';
 
 // Import other pages (will create later)
 // import CartPage from './pages/CartPage';
@@ -26,6 +27,7 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/location" element={<LocationPage />} />
+              <Route path="/feedback" element={<FeedbackPage />} />
               
               {/* Other routes - commented for now */}
               {/* <Route path="/cart" element={<CartPage />} /> */}

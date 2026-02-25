@@ -64,7 +64,7 @@ const AccountSidebar = () => {
 }
   },
   { icon: <FaShoppingBag />, label: 'My Orders', path: '/account/orders' },
-  { icon: <FaRegCommentDots />, label: 'Feedback', path: '/account/feedback' },
+  { icon: <FaRegCommentDots />, label: 'Feedback', path: '/feedback' },
 ];
 
   if (!isAccountSidebarOpen) return null;
