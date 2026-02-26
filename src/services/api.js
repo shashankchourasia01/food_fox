@@ -70,6 +70,25 @@ export const createUser = (userData) => api.post('/users', userData);
 export const updateUser = (id, userData) => api.put(`/users/${id}`, userData);
 export const deleteUser = (id) => api.delete(`/users/${id}`);
 
+// ============================================
+// AUTH APIS - Add these with other API functions
+// ============================================
+
+// 📌 Send OTP
+export const sendOTP = (userData) => api.post('/auth/send-otp', userData);
+
+// 📌 Verify OTP
+export const verifyOTP = (data) => api.post('/auth/verify-otp', data);
+
+// 📌 Resend OTP
+export const resendOTP = (phone) => api.post('/auth/resend-otp', { phone });
+
+// 📌 Get User Profile (after login)
+export const getUserProfile = () => api.get('/auth/profile');
+
+// 📌 Logout
+export const logout = () => api.post('/auth/logout');
+
 // 📌 Product APIs (will add later)
 // export const getProducts = () => api.get('/products');
 // export const getProductById = (id) => api.get(`/products/${id}`);

@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaUser, FaPhone, FaLock, FaWhatsapp } from 'react-icons/fa';
 import { MdMessage, MdTimer } from 'react-icons/md';
-import { sendOTP, verifyOTP } from '../redux/actions/authActions';
+import { sendOTP, verifyOTP, resendOTP } from '../services/api';
 
 const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, loading, otpSent, otpLoading } = useSelector((state) => state.auth);
 
   // Form states
   const [step, setStep] = useState(1); // 1: name, 2: phone, 3: otp
@@ -17,15 +16,16 @@ const LoginPage = () => {
     phone: '',
     otp: ['', '', '', ''] // 4 digit OTP
   });
+  
+  // UI states
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  
+  // OTP timer states
   const [timer, setTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      navigate('/');
-    }
-  }, [user, navigate]);
+  const [otpSent, setOtpSent] = useState(false);
 
   // Timer for OTP resend
   useEffect(() => {
@@ -47,6 +47,8 @@ const LoginPage = () => {
       ...prev,
       [name]: value
     }));
+    // Clear error when user types
+    setError('');
   };
 
   // Handle OTP input
@@ -75,35 +77,117 @@ const LoginPage = () => {
     }
   };
 
-  // Handle next step
-  const handleNext = () => {
-    if (step === 1 && formData.name.trim()) {
-      setStep(2);
-    } else if (step === 2 && formData.phone.length === 10) {
-      // Send OTP
-      dispatch(sendOTP(formData.phone));
+  // Handle send OTP
+  const handleSendOTP = async () => {
+    // Validate phone
+    if (formData.phone.length !== 10) {
+      setError('Please enter a valid 10-digit phone number');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await sendOTP({
+        name: formData.name,
+        phone: formData.phone
+      });
+
+      console.log('OTP sent:', response.data);
+      
+      setSuccess('OTP sent successfully!');
+      setOtpSent(true);
       setStep(3);
       setTimer(30);
       setCanResend(false);
+      
+      // For development - auto-fill OTP if returned
+      if (response.data.data?.testOTP) {
+        const testOTP = response.data.data.testOTP.split('');
+        setFormData(prev => ({
+          ...prev,
+          otp: testOTP
+        }));
+      }
+
+    } catch (error) {
+      console.error('Send OTP error:', error);
+      setError(error.response?.data?.message || 'Failed to send OTP');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Handle OTP verification
-  const handleVerify = () => {
+  // Handle verify OTP
+  const handleVerifyOTP = async () => {
     const otpString = formData.otp.join('');
-    if (otpString.length === 4) {
-      // For demo, any 4-digit OTP works
-      dispatch(verifyOTP(otpString, formData.name, formData.phone));
+    
+    if (otpString.length !== 4) {
+      setError('Please enter complete OTP');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await verifyOTP({
+        phone: formData.phone,
+        otp: otpString
+      });
+
+      console.log('Login success:', response.data);
+      
+      // Save token and user data to localStorage
+      localStorage.setItem('token', response.data.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.data.user));
+      
+      setSuccess('Login successful! Redirecting...');
+      
+      // Redirect to home page after 1 second
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
+
+    } catch (error) {
+      console.error('Verify OTP error:', error);
+      setError(error.response?.data?.message || 'Invalid OTP');
+    } finally {
+      setLoading(false);
     }
   };
 
   // Handle resend OTP
-  const handleResend = () => {
-    if (canResend) {
-      dispatch(sendOTP(formData.phone));
+  const handleResend = async () => {
+    if (!canResend) return;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      await resendOTP(formData.phone);
+      
+      setSuccess('OTP resent successfully!');
       setTimer(30);
       setCanResend(false);
+      
+    } catch (error) {
+      console.error('Resend OTP error:', error);
+      setError(error.response?.data?.message || 'Failed to resend OTP');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // Handle next step from name to phone
+  const handleNextFromName = () => {
+    if (!formData.name.trim()) {
+      setError('Please enter your name');
+      return;
+    }
+    setStep(2);
+    setError('');
   };
 
   return (
@@ -112,7 +196,14 @@ const LoginPage = () => {
         {/* Header with Back Button */}
         <div className="flex items-center gap-4 mb-6">
           <button
-            onClick={() => step === 1 ? navigate(-1) : setStep(step - 1)}
+            onClick={() => {
+              if (step === 1) {
+                navigate(-1);
+              } else {
+                setStep(step - 1);
+                setError('');
+              }
+            }}
             className="p-2 hover:bg-white rounded-full transition"
           >
             <FaArrowLeft className="text-gray-600" />
@@ -123,6 +214,18 @@ const LoginPage = () => {
             {step === 3 && "Verify OTP"}
           </h1>
         </div>
+
+        {/* Error/Success Messages */}
+        {error && (
+          <div className="max-w-md mx-auto mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+            ❌ {error}
+          </div>
+        )}
+        {success && (
+          <div className="max-w-md mx-auto mb-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm">
+            ✅ {success}
+          </div>
+        )}
 
         {/* Main Card */}
         <div className="max-w-md mx-auto">
@@ -167,7 +270,7 @@ const LoginPage = () => {
                   </div>
 
                   <button
-                    onClick={handleNext}
+                    onClick={handleNextFromName}
                     disabled={!formData.name.trim()}
                     className={`w-full py-4 rounded-xl font-semibold text-lg transition
                       ${formData.name.trim() 
@@ -216,14 +319,14 @@ const LoginPage = () => {
                   </div>
 
                   <button
-                    onClick={handleNext}
-                    disabled={formData.phone.length !== 10}
+                    onClick={handleSendOTP}
+                    disabled={formData.phone.length !== 10 || loading}
                     className={`w-full py-4 rounded-xl font-semibold text-lg transition
-                      ${formData.phone.length === 10
+                      ${formData.phone.length === 10 && !loading
                         ? 'bg-red-500 hover:bg-red-600 text-white transform hover:scale-[1.02]' 
                         : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
                   >
-                    Send OTP
+                    {loading ? 'Sending...' : 'Send OTP'}
                   </button>
                 </div>
               )}
@@ -270,7 +373,8 @@ const LoginPage = () => {
                     ) : (
                       <button
                         onClick={handleResend}
-                        className="text-red-500 hover:text-red-600 font-semibold text-sm"
+                        disabled={loading}
+                        className="text-red-500 hover:text-red-600 font-semibold text-sm disabled:opacity-50"
                       >
                         Resend OTP
                       </button>
@@ -278,7 +382,7 @@ const LoginPage = () => {
                   </div>
 
                   <button
-                    onClick={handleVerify}
+                    onClick={handleVerifyOTP}
                     disabled={formData.otp.join('').length !== 4 || loading}
                     className={`w-full py-4 rounded-xl font-semibold text-lg transition
                       ${formData.otp.join('').length === 4 && !loading

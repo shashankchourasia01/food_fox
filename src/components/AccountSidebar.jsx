@@ -13,11 +13,28 @@ import {
   FaRegCommentDots
 } from 'react-icons/fa';
 import { MdDashboard, MdHelp } from 'react-icons/md';
+import { logout } from '../services/api';
+
+
 
 const AccountSidebar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAccountSidebarOpen } = useSelector((state) => state.ui);
+  const user = JSON.parse(localStorage.getItem('user'));
+
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      dispatch(closeAccountSidebar());
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   // Close sidebar when pressing Escape key
   useEffect(() => {
@@ -141,18 +158,34 @@ const AccountSidebar = () => {
 
           {/* Login/Signup Button */}
 
-          <div className="px-6 mt-6">
-            <button
-              onClick={() => {
-                dispatch(closeAccountSidebar());
-                navigate('/login'); // ✅ Add navigation
-              }}
-              className="w-full bg-red-500 text-white py-3 rounded-lg font-semibold hover:bg-red-600 transition flex items-center justify-center space-x-2"
-            >
-              <FaSignOutAlt className="rotate-180" />
-              <span>Login / Signup</span>
-            </button>
-          </div>
+          {user ? (
+            <div className="px-6 mt-6">
+              <div className="text-center mb-3">
+                <p className="text-sm text-gray-600">Logged in as</p>
+                <p className="font-semibold text-gray-800">{user.name}</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="w-full bg-red-500 text-white py-3 rounded-lg font-semibold hover:bg-red-600 transition flex items-center justify-center space-x-2"
+              >
+                <FaSignOutAlt />
+                <span>Logout</span>
+              </button>
+            </div>
+          ) : (
+            <div className="px-6 mt-6">
+              <button
+                onClick={() => {
+                  dispatch(closeAccountSidebar());
+                  navigate('/login');
+                }}
+                className="w-full bg-red-500 text-white py-3 rounded-lg font-semibold hover:bg-red-600 transition flex items-center justify-center space-x-2"
+              >
+                <FaSignOutAlt className="rotate-180" />
+                <span>Login / Signup</span>
+              </button>
+            </div>
+          )}
 
           {/* Version Info */}
           <div className="absolute bottom-4 left-6 text-xs text-gray-400">
