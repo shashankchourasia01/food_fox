@@ -90,8 +90,27 @@ export const getUserProfile = () => api.get('/auth/profile');
 export const logout = () => api.post('/auth/logout');
 
 // 📌 Product APIs (will add later)
-// export const getProducts = () => api.get('/products');
-// export const getProductById = (id) => api.get(`/products/${id}`);
+export const getProducts = (params = {}) => {
+  // Convert params object to query string
+  const queryString = new URLSearchParams(params).toString();
+  return api.get(`/products${queryString ? `?${queryString}` : ''}`);
+};
+
+// Get single product
+export const getProductById = (id) => api.get(`/products/${id}`);
+
+// Get all categories
+export const getCategories = () => api.get('/products/categories');
+
+// Get featured products
+export const getFeaturedProducts = () => api.get('/products/featured');
+
+// Admin functions (protected)
+export const createProduct = (productData) => api.post('/products', productData);
+export const updateProduct = (id, productData) => api.put(`/products/${id}`, productData);
+export const deleteProduct = (id) => api.delete(`/products/${id}`);
+
+
 
 // 📌 Order APIs (will add later)
 // export const getOrders = () => api.get('/orders');
