@@ -2,47 +2,82 @@ import {
   ADD_TO_CART,
   REMOVE_FROM_CART,
   UPDATE_CART_QUANTITY,
-  CLEAR_CART
+  CLEAR_CART,
+  CART_LOAD_REQUEST,
+  CART_LOAD_SUCCESS,
+  CART_LOAD_FAIL
 } from '../constants/cartConstants';
+import { addToCart as addToCartAPI, getCart, updateCartItem, removeFromCart as removeFromCartAPI, clearCart as clearCartAPI } from '../../services/api';
 
-// Add to cart action
-export const addToCart = (item) => (dispatch, getState) => {
-  dispatch({
-    type: ADD_TO_CART,
-    payload: { ...item, quantity: 1 }
-  });
+// Load cart from backend
+export const loadCart = () => async (dispatch, getState) => {
+  try {
+    dispatch({ type: CART_LOAD_REQUEST });
 
-  // Save to localStorage
-  localStorage.setItem('cartItems', JSON.stringify(getState().cart.cartItems));
-};
+    const { data } = await getCart();
 
-// Remove from cart
-export const removeFromCart = (id) => (dispatch, getState) => {
-  dispatch({
-    type: REMOVE_FROM_CART,
-    payload: id
-  });
-
-  localStorage.setItem('cartItems', JSON.stringify(getState().cart.cartItems));
-};
-
-// Update quantity
-export const updateCartQuantity = (id, quantity) => (dispatch, getState) => {
-  if (quantity < 1) {
-    // Agar quantity 0 ho jaye to item remove kar do
-    dispatch(removeFromCart(id));
-  } else {
     dispatch({
-      type: UPDATE_CART_QUANTITY,
-      payload: { id, quantity }
+      type: CART_LOAD_SUCCESS,
+      payload: data.data
+    });
+  } catch (error) {
+    dispatch({
+      type: CART_LOAD_FAIL,
+      payload: error.response?.data?.message || error.message
     });
   }
-
-  localStorage.setItem('cartItems', JSON.stringify(getState().cart.cartItems));
 };
 
-// Clear cart
-export const clearCart = () => (dispatch) => {
-  dispatch({ type: CLEAR_CART });
-  localStorage.removeItem('cartItems');
+// Add to cart with backend sync
+export const addToCart = (productId, quantity) => async (dispatch) => {
+  try {
+    const { data } = await addToCartAPI(productId, quantity);
+    dispatch({
+      type: ADD_TO_CART,
+      payload: data.data
+    });
+  } catch (error) {
+    console.error('Add to cart error:', error);
+  }
+};
+
+// Update quantity with backend sync
+export const updateCartQuantity = (productId, quantity) => async (dispatch) => {
+  try {
+    const { data } = await updateCartItem(productId, quantity);
+    
+    dispatch({
+      type: UPDATE_CART_QUANTITY,
+      payload: data.data
+    });
+  } catch (error) {
+    console.error('Update cart error:', error);
+  }
+};
+
+// Remove from cart with backend sync
+export const removeFromCart = (productId) => async (dispatch) => {
+  try {
+    const { data } = await removeFromCartAPI(productId);
+    
+    dispatch({
+      type: REMOVE_FROM_CART,
+      payload: data.data
+    });
+  } catch (error) {
+    console.error('Remove from cart error:', error);
+  }
+};
+
+// Clear cart with backend sync
+export const clearCart = () => async (dispatch) => {
+  try {
+    await clearCartAPI();
+    
+    dispatch({
+      type: CLEAR_CART
+    });
+  } catch (error) {
+    console.error('Clear cart error:', error);
+  }
 };

@@ -42,64 +42,79 @@ const MiniCart = () => {
         <span className="text-sm opacity-90">Total: ₹{totalAmount}</span>
       </div>
 
-      {/* Cart Items */}
+      {/* Cart Items - ✅ FIXED: Unique key added */}
       <div className="max-h-96 overflow-y-auto">
-        {cartItems.map((item) => (
-          <div key={item.id} className="p-4 border-b border-gray-100 hover:bg-gray-50 transition">
-            <div className="flex gap-3">
-              {/* Item Image */}
-              <img 
-                src={item.image} 
-                alt={item.name}
-                className="w-16 h-16 object-cover rounded-lg"
-              />
-              
-              {/* Item Details */}
-              <div className="flex-1">
-                <h4 className="text-sm font-semibold text-gray-800 mb-1 line-clamp-2">
-                  {item.name}
-                </h4>
-                <p className="text-xs text-gray-500 mb-2">{item.pieces}</p>
+        {cartItems.map((item) => {
+          // ✅ Generate a unique key - MongoDB _id use karo
+          const itemKey = item.product?._id || item.id || `cart-${Math.random()}`;
+          
+          return (
+            <div key={itemKey} className="p-4 border-b border-gray-100 hover:bg-gray-50 transition">
+              <div className="flex gap-3">
+                {/* Item Image */}
+                <img 
+                  src={item.image} 
+                  alt={item.name}
+                  className="w-16 h-16 object-cover rounded-lg"
+                />
                 
-                {/* Price and Quantity Controls */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-red-500">
-                    ₹{item.price * item.quantity}
-                  </span>
+                {/* Item Details */}
+                <div className="flex-1">
+                  <h4 className="text-sm font-semibold text-gray-800 mb-1 line-clamp-2">
+                    {item.name}
+                  </h4>
+                  <p className="text-xs text-gray-500 mb-2">{item.pieces}</p>
                   
-                  <div className="flex items-center gap-2">
-                    {/* Quantity Controls */}
-                    <div className="flex items-center border border-gray-200 rounded-lg">
+                  {/* Price and Quantity Controls */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-red-500">
+                      ₹{item.price * item.quantity}
+                    </span>
+                    
+                    <div className="flex items-center gap-2">
+                      {/* Quantity Controls */}
+                      <div className="flex items-center border border-gray-200 rounded-lg">
+                        <button 
+                          onClick={() => {
+                            // ✅ Use product._id for API calls
+                            const productId = item.product?._id || item.id;
+                            dispatch(updateCartQuantity(productId, item.quantity - 1));
+                          }}
+                          className="p-1 hover:bg-gray-100 rounded-l-lg"
+                        >
+                          <FaMinus className="text-xs text-gray-600" />
+                        </button>
+                        <span className="w-8 text-center text-xs font-semibold">
+                          {item.quantity}
+                        </span>
+                        <button 
+                          onClick={() => {
+                            const productId = item.product?._id || item.id;
+                            dispatch(updateCartQuantity(productId, item.quantity + 1));
+                          }}
+                          className="p-1 hover:bg-gray-100 rounded-r-lg"
+                        >
+                          <FaPlus className="text-xs text-gray-600" />
+                        </button>
+                      </div>
+                      
+                      {/* Remove Button */}
                       <button 
-                        onClick={() => dispatch(updateCartQuantity(item.id, item.quantity - 1))}
-                        className="p-1 hover:bg-gray-100 rounded-l-lg"
+                        onClick={() => {
+                          const productId = item.product?._id || item.id;
+                          dispatch(removeFromCart(productId));
+                        }}
+                        className="p-1 hover:bg-red-50 rounded-full text-gray-400 hover:text-red-500 transition"
                       >
-                        <FaMinus className="text-xs text-gray-600" />
-                      </button>
-                      <span className="w-8 text-center text-xs font-semibold">
-                        {item.quantity}
-                      </span>
-                      <button 
-                        onClick={() => dispatch(updateCartQuantity(item.id, item.quantity + 1))}
-                        className="p-1 hover:bg-gray-100 rounded-r-lg"
-                      >
-                        <FaPlus className="text-xs text-gray-600" />
+                        <FaTrash className="text-xs" />
                       </button>
                     </div>
-                    
-                    {/* Remove Button */}
-                    <button 
-                      onClick={() => dispatch(removeFromCart(item.id))}
-                      className="p-1 hover:bg-red-50 rounded-full text-gray-400 hover:text-red-500 transition"
-                    >
-                      <FaTrash className="text-xs" />
-                    </button>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Footer */}

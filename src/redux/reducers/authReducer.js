@@ -8,13 +8,18 @@ import {
   LOGOUT
 } from '../constants/authConstants';
 
-// Get user from localStorage
-const userInfoFromStorage = localStorage.getItem('userInfo')
-  ? JSON.parse(localStorage.getItem('userInfo'))
+// ✅ localStorage se user data load karo
+const userInfoFromStorage = localStorage.getItem('user')
+  ? JSON.parse(localStorage.getItem('user'))
+  : null;
+
+const tokenFromStorage = localStorage.getItem('token')
+  ? localStorage.getItem('token')
   : null;
 
 const initialState = {
-  user: userInfoFromStorage,
+  user: userInfoFromStorage,  // ✅ localStorage se user load hoga
+  token: tokenFromStorage,    // ✅ token bhi load karo
   loading: false,
   error: null,
   otpSent: false,
@@ -34,7 +39,8 @@ export const authReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        user: action.payload,
+        user: action.payload.user,
+        token: action.payload.token,
         error: null
       };
     
@@ -73,6 +79,7 @@ export const authReducer = (state = initialState, action) => {
       return {
         ...state,
         user: null,
+        token: null,
         otpSent: false
       };
     

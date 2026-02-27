@@ -11,8 +11,30 @@ import LocationPage from './pages/LocationPage';
 import FeedbackPage from './pages/FeedbackPage';
 import LoginPage from './pages/LoginPage';
 
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { LOGIN_SUCCESS } from './redux/constants/authConstants';
+
 
 function App() {
+  const dispatch = useDispatch();
+
+  // ✅ Temporary fix - sync localStorage to Redux on app load
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    
+    if (user && token) {
+      console.log('🔥 Syncing localStorage to Redux');
+      dispatch({
+        type: LOGIN_SUCCESS,
+        payload: {
+          user: JSON.parse(user),
+          token: token
+        }
+      });
+    }
+  }, [dispatch]);
   return (
     <Provider store={store}>
       <Router>

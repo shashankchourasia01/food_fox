@@ -2,56 +2,73 @@ import {
   ADD_TO_CART,
   REMOVE_FROM_CART,
   UPDATE_CART_QUANTITY,
-  CLEAR_CART
+  CLEAR_CART,
+  CART_LOAD_REQUEST,
+  CART_LOAD_SUCCESS,
+  CART_LOAD_FAIL
 } from '../constants/cartConstants';
 
-// Get cart items from localStorage
+// Load cart from localStorage (as backup)
 const cartItemsFromStorage = localStorage.getItem('cartItems')
   ? JSON.parse(localStorage.getItem('cartItems'))
   : [];
 
 const initialState = {
   cartItems: cartItemsFromStorage,
+  loading: false,
+  error: null
 };
 
 export const cartReducer = (state = initialState, action) => {
   switch (action.type) {
-    case ADD_TO_CART:
-      const item = action.payload;
-      const existItem = state.cartItems.find(x => x.id === item.id);
+    case CART_LOAD_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null
+      };
 
-      if (existItem) {
-        return {
-          ...state,
-          cartItems: state.cartItems.map(x =>
-            x.id === existItem.id ? { ...x, quantity: x.quantity + 1 } : x
-          )
-        };
-      } else {
-        return {
-          ...state,
-          cartItems: [...state.cartItems, item]
-        };
-      }
+    case CART_LOAD_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        cartItems: action.payload.items || [],
+        error: null
+      };
+
+    case CART_LOAD_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload
+      };
+
+    case ADD_TO_CART:
+      return {
+        ...state,
+        cartItems: action.payload.items || state.cartItems,
+        loading: false
+      };
 
     case REMOVE_FROM_CART:
       return {
         ...state,
-        cartItems: state.cartItems.filter(x => x.id !== action.payload)
+        cartItems: action.payload.items || state.cartItems.filter(x => x.product !== action.payload),
+        loading: false
       };
 
     case UPDATE_CART_QUANTITY:
       return {
         ...state,
-        cartItems: state.cartItems.map(x =>
-          x.id === action.payload.id ? { ...x, quantity: action.payload.quantity } : x
-        )
+        cartItems: action.payload.items || state.cartItems,
+        loading: false
       };
 
     case CLEAR_CART:
       return {
         ...state,
-        cartItems: []
+        cartItems: [],
+        loading: false
       };
 
     default:

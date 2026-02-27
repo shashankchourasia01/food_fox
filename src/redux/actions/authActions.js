@@ -7,6 +7,7 @@ import {
   OTP_FAIL,
   LOGOUT
 } from '../constants/authConstants';
+import axios from 'axios';
 
 // Send OTP action
 export const sendOTP = (phone) => async (dispatch) => {
@@ -33,32 +34,33 @@ export const sendOTP = (phone) => async (dispatch) => {
 };
 
 // Verify OTP and Login
+// Verify OTP and Login
 export const verifyOTP = (otp, name, phone) => async (dispatch) => {
   try {
     dispatch({ type: LOGIN_REQUEST });
     
-    // Simulate verification - replace with actual API
-    setTimeout(() => {
-      // Mock successful login
-      const userData = {
-        name: name,
-        phone: phone,
-        isAuthenticated: true
-      };
-      
-      // Save to localStorage
-      localStorage.setItem('userInfo', JSON.stringify(userData));
-      
-      dispatch({
-        type: LOGIN_SUCCESS,
-        payload: userData
-      });
-    }, 1000);
+    // API call
+    const response = await axios.post('/api/auth/verify-otp', {
+      phone,
+      otp,
+      name
+    });
+    
+    const { user, token } = response.data.data;
+    
+    // Save to localStorage
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('token', token);
+    
+    dispatch({
+      type: LOGIN_SUCCESS,
+      payload: { user, token }  // ✅ Send both user and token
+    });
     
   } catch (error) {
     dispatch({
       type: LOGIN_FAIL,
-      payload: error.message
+      payload: error.response?.data?.message || 'Verification failed'
     });
   }
 };

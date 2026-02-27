@@ -111,16 +111,26 @@ export const updateProduct = (id, productData) => api.put(`/products/${id}`, pro
 export const deleteProduct = (id) => api.delete(`/products/${id}`);
 
 
+// CART APIS
+export const getCart = () => api.get('/cart');
+export const addToCart = (productId, quantity = 1) => 
+  api.post('/cart/items', { productId, quantity });
+export const updateCartItem = (productId, quantity) => 
+  api.put(`/cart/items/${productId}`, { quantity });
+export const removeFromCart = (productId) => 
+  api.delete(`/cart/items/${productId}`);
+export const clearCart = () => api.delete('/cart');
 
-// 📌 Order APIs (will add later)
-// export const getOrders = () => api.get('/orders');
-// export const createOrder = (orderData) => api.post('/orders', orderData);
 
-// 📌 Cart APIs (will add later)
-// export const getCart = () => api.get('/cart');
-// export const addToCart = (item) => api.post('/cart', item);
-// export const updateCart = (id, quantity) => api.put(`/cart/${id}`, { quantity });
-// export const removeFromCart = (id) => api.delete(`/cart/${id}`);
+// ORDER APIS
+
+export const createOrder = (orderData) => api.post('/orders', orderData);
+export const getMyOrders = () => api.get('/orders/my-orders');
+export const getOrderById = (id) => api.get(`/orders/${id}`);
+export const cancelOrder = (id, reason) => 
+  api.put(`/orders/${id}/cancel`, { reason });
+export const trackOrder = (id) => api.get(`/orders/${id}/track`);
+
 
 // 📌 Feedback APIs (will add later)
 // export const submitFeedback = (feedback) => api.post('/feedback', feedback);

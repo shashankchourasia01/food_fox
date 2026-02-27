@@ -67,33 +67,26 @@ const ExploreMenu = () => {
     return cartItem ? cartItem.quantity : 0;
   };
 
-  // Handle add to cart
-  const handleAddToCart = (item) => {
-    dispatch(addToCart({
-      id: item._id, // ✅ MongoDB uses _id
-      name: item.name,
-      price: item.price,
-      image: item.image,
-      description: item.description
-    }));
-  };
+  // Handle add to cart - ✅ Sirf ID bhejo
+const handleAddToCart = (item) => {
+  dispatch(addToCart(item._id, 1)); // Sirf ID
+};
 
-  // Handle increment
-  const handleIncrement = (item) => {
-    const currentQty = getItemQuantity(item._id);
-    dispatch(updateCartQuantity(item._id, currentQty + 1));
-  };
+// Handle increment
+const handleIncrement = (item) => {
+  const currentQty = getItemQuantity(item._id);
+  dispatch(updateCartQuantity(item._id, currentQty + 1));
+};
 
-  // Handle decrement
-  const handleDecrement = (item) => {
-    const currentQty = getItemQuantity(item._id);
-    if (currentQty > 1) {
-      dispatch(updateCartQuantity(item._id, currentQty - 1));
-    } else {
-      dispatch(updateCartQuantity(item._id, 0));
-    }
-  };
-
+// Handle decrement
+const handleDecrement = (item) => {
+  const currentQty = getItemQuantity(item._id);
+  if (currentQty > 1) {
+    dispatch(updateCartQuantity(item._id, currentQty - 1));
+  } else {
+    dispatch(updateCartQuantity(item._id, 0));
+  }
+};
   // Render star rating
   const renderRating = (rating) => {
     const stars = [];
