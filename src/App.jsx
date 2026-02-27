@@ -6,10 +6,12 @@ import Navbar from './components/Navbar';
 import AccountSidebar from './components/AccountSidebar';
 import HomePage from './pages/HomePage';
 import Footer from './components/Footer';
-import CartPage from './pages/CartPage'; 
+import CartPage from './pages/CartPage';
 import LocationPage from './pages/LocationPage';
 import FeedbackPage from './pages/FeedbackPage';
 import LoginPage from './pages/LoginPage';
+import CheckoutPage from './pages/CheckoutPage';
+import OrderSuccessPage from './pages/OrderSuccessPage';
 
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
@@ -23,7 +25,7 @@ function App() {
   useEffect(() => {
     const user = localStorage.getItem('user');
     const token = localStorage.getItem('token');
-    
+
     if (user && token) {
       console.log('🔥 Syncing localStorage to Redux');
       dispatch({
@@ -49,10 +51,11 @@ function App() {
               <Route path="/location" element={<LocationPage />} />
               <Route path="/feedback" element={<FeedbackPage />} />
               <Route path="/login" element={<LoginPage />} />
-              
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+
               {/* Other routes - commented for now */}
-              {/* <Route path="/cart" element={<CartPage />} /> */}
-              {/* <Route path="/account/*" element={<AccountPage />} /> */}
+             
             </Routes>
           </main>
           <Footer />

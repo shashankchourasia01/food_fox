@@ -6,12 +6,14 @@ import { composeWithDevTools } from '@redux-devtools/extension'; // For Redux De
 import { uiReducer } from './reducers/uiReducer';
 import { cartReducer } from './reducers/cartReducer';
 import { authReducer } from './reducers/authReducer';
+import { orderReducer } from './reducers/orderReducer';
 
 // Combine all reducers
 const rootReducer = combineReducers({
   ui: uiReducer,
   cart: cartReducer,
-  auth: authReducer 
+  auth: authReducer,
+  order: orderReducer,  
   // auth: authReducer,  // Will add later
   // menu: menuReducer,  // Will add later
 });
