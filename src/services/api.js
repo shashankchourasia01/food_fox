@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Backend URL - .env file se ya direct
 // const API_URL = 'http://localhost:5000/api';
-const API_URL = 'https://food-fox-backend.onrender.com/'
+const API_URL = 'https://food-fox-backend.onrender.com/api'
 
 // Create axios instance
 const api = axios.create({
