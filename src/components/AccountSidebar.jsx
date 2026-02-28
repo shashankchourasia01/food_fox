@@ -80,7 +80,7 @@ const AccountSidebar = () => {
         window.open(`https://wa.me/919229264244?text=${message}`, '_blank');
       }
     },
-    { icon: <FaShoppingBag />, label: 'My Orders', path: '/account/orders' },
+    { icon: <FaShoppingBag />, label: 'My Orders', path: '/my-orders' },
     { icon: <FaRegCommentDots />, label: 'Feedback', path: '/feedback' },
   ];
 

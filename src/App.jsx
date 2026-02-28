@@ -20,6 +20,7 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminUsers from './pages/admin/AdminUsers';
 import Sidebar from './components/admin/Sidebar';
 import Header from './components/admin/Header';
+import MyOrdersPage from './pages/MyOrdersPage';
 
 import { LOGIN_SUCCESS } from './redux/constants/authConstants';
 
@@ -81,6 +82,7 @@ const AppContent = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+          <Route path="/my-orders" element={<MyOrdersPage />} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={
