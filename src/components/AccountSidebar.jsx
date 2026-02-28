@@ -68,7 +68,7 @@ const AccountSidebar = () => {
   };
 
   const menuItems = [
-    { icon: <MdDashboard />, label: 'My Account', path: '/account/dashboard' },
+    // { icon: <MdDashboard />, label: 'My Account', path: '/account/dashboard' },
     { icon: <FaMapMarkerAlt />, label: 'Manage Address', onClick: handleManageAddress },
     { icon: <FaGift />, label: 'Cashback', path: '/account/cashback' },
     { icon: <FaWallet />, label: 'Wallet', path: '/account/wallet' },
