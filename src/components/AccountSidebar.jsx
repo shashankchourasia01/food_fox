@@ -68,10 +68,13 @@ const AccountSidebar = () => {
   };
 
   const menuItems = [
+
+
     // { icon: <MdDashboard />, label: 'My Account', path: '/account/dashboard' },
-    { icon: <FaMapMarkerAlt />, label: 'Manage Address', onClick: handleManageAddress },
     // { icon: <FaGift />, label: 'Cashback', path: '/account/cashback' },
     // { icon: <FaWallet />, label: 'Wallet', path: '/account/wallet' },
+
+    { icon: <FaShoppingBag />, label: 'My Orders', path: '/my-orders' },
     {
       icon: <MdHelp />,
       label: 'Help',
@@ -80,8 +83,8 @@ const AccountSidebar = () => {
         window.open(`https://wa.me/919229264244?text=${message}`, '_blank');
       }
     },
-    { icon: <FaShoppingBag />, label: 'My Orders', path: '/my-orders' },
     { icon: <FaRegCommentDots />, label: 'Feedback', path: '/feedback' },
+    { icon: <FaMapMarkerAlt />, label: 'Manage Address', onClick: handleManageAddress },
   ];
 
   if (!isAccountSidebarOpen) return null;
