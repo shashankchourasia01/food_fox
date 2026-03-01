@@ -79,7 +79,7 @@ const AccountSidebar = () => {
       icon: <MdHelp />,
       label: 'Help',
       onClick: () => {
-        const message = encodeURIComponent("Hi! I need help with my order.");
+        const message = encodeURIComponent("Hi... I need help with my order.");
         window.open(`https://wa.me/919229264244?text=${message}`, '_blank');
       }
     },
