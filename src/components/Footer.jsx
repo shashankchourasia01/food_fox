@@ -120,7 +120,7 @@ const Footer = () => {
             </h3>
             <ul className="space-y-2 mt-3">
               <li>
-                <Link to="/help" className="text-gray-400 hover:text-red-400 transition text-xs md:text-sm block">
+                <Link to="" className="text-gray-400 hover:text-red-400 transition text-xs md:text-sm block">
                   Help Center
                 </Link>
               </li>
