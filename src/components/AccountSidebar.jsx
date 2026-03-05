@@ -24,6 +24,8 @@ const AccountSidebar = () => {
   const { isAccountSidebarOpen } = useSelector((state) => state.ui);
   const user = JSON.parse(localStorage.getItem('user'));
 
+  
+
   // Handle logout
   const handleLogout = async () => {
     try {
@@ -111,7 +113,7 @@ const AccountSidebar = () => {
             <div className="flex items-center space-x-3">
               <FaUserCircle className="text-5xl" />
               <div>
-                <h2 className="text-xl font-bold">Hi User</h2>
+                <h2 className="text-xl font-bold">Hi {user?.name || 'User'}</h2>
                 <p className="text-sm opacity-90">Welcome back!</p>
               </div>
             </div>
