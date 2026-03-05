@@ -1,16 +1,260 @@
-import React, { useState, useEffect,useRef } from 'react';
+// import React, { useState, useEffect,useRef } from 'react';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { FaChevronLeft, FaChevronRight, FaClock, FaFire, FaPlus, FaMinus } from 'react-icons/fa';
+// import { addToCart, updateCartQuantity } from '../../redux/actions/cartActions';
+// import { getProducts } from '../../services/api'; // API import
+
+// const SpecialOffers = () => {
+//   const dispatch = useDispatch();
+//   const scrollContainerRef = useRef(null);
+//   const [offers, setOffers] = useState([]);
+//   const [loading, setLoading] = useState(true);
+  
+//   const cartItems = useSelector((state) => state.cart?.cartItems || []);
+
+//   // Fetch offers from backend
+//   useEffect(() => {
+//     fetchOffers();
+//   }, []);
+
+//   const fetchOffers = async () => {
+//     try {
+//       // Get products with offers (discounted items)
+//       const response = await getProducts({ limit: 5 });
+//       setOffers(response.data.data);
+//     } catch (error) {
+//       console.error('Error fetching offers:', error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   // Scroll functions
+//   const scrollLeft = () => {
+//     if (scrollContainerRef.current) {
+//       scrollContainerRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+//     }
+//   };
+
+//   const scrollRight = () => {
+//     if (scrollContainerRef.current) {
+//       scrollContainerRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+//     }
+//   };
+
+//   // Check if item is in cart
+//   const getItemQuantity = (itemId) => {
+//     const cartItem = cartItems.find(item => item.product === itemId || item.id === itemId);
+//     return cartItem ? cartItem.quantity : 0;
+//   };
+
+//   // Handle add to cart - ✅ FIXED: Using only product._id
+// const handleAddToCart = (product) => {
+//   console.log('Adding to cart with ID:', product._id); // Debug log
+//   dispatch(addToCart(product._id, 1)); // Sirf ID bhejo
+// };
+
+// // Handle increment
+// const handleIncrement = (product) => {
+//   const currentQty = getItemQuantity(product._id);
+//   dispatch(updateCartQuantity(product._id, currentQty + 1));
+// };
+
+// // Handle decrement
+// const handleDecrement = (product) => {
+//   const currentQty = getItemQuantity(product._id);
+//   if (currentQty > 1) {
+//     dispatch(updateCartQuantity(product._id, currentQty - 1));
+//   } else {
+//     dispatch(updateCartQuantity(product._id, 0));
+//   }
+// };
+
+//   if (loading) {
+//     return <div>Loading...</div>;
+//   }
+
+//   return (
+//     <section className="py-6 sm:py-8 md:py-10 bg-white">
+//       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+//         {/* Header */}
+//         <div className="flex items-center justify-between mb-4 sm:mb-6">
+//           <div>
+//             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">
+//               <span className="text-red-500">DISH OF THE DAY</span>
+//             </h2>
+//             <p className="text-xs sm:text-sm text-gray-500 mt-1">
+//               Special offers just for you
+//             </p>
+//           </div>
+          
+//           {/* Navigation Arrows */}
+//           <div className="hidden sm:flex space-x-2">
+//             <button onClick={scrollLeft} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition">
+//               <FaChevronLeft className="text-gray-600" />
+//             </button>
+//             <button onClick={scrollRight} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition">
+//               <FaChevronRight className="text-gray-600" />
+//             </button>
+//           </div>
+//         </div>
+
+//         {/* Horizontal Scrollable Cards */}
+//         <div 
+//           ref={scrollContainerRef}
+//           className="flex overflow-x-auto gap-3 sm:gap-4 pb-4 hide-scrollbar"
+//           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+//         >
+//           {offers.map((product) => {
+//             const quantity = getItemQuantity(product._id);
+            
+//             return (
+//               <div 
+//                 key={product._id}
+//                 className="flex-none w-[280px] sm:w-[300px] md:w-[320px] bg-white rounded-xl shadow-lg hover:shadow-xl transition border border-gray-100"
+//               >
+//                 {/* Image Container */}
+//                 <div className="relative h-40 sm:h-44 md:h-48 rounded-t-xl overflow-hidden">
+//                   <img 
+//                     src={product.image}
+//                     alt={product.name}
+//                     className="w-full h-full object-cover hover:scale-105 transition duration-300"
+//                   />
+                  
+//                   {/* Discount Badge */}
+//                   {product.discount > 0 && (
+//                     <div className="absolute top-2 left-2 bg-red-500 text-white text-xs sm:text-sm font-bold px-2 py-1 rounded-lg">
+//                       {product.discount}% OFF
+//                     </div>
+//                   )}
+                  
+//                   {/* Bestseller Badge */}
+//                   {product.isBestseller && (
+//                     <div className="absolute top-2 right-2 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-lg flex items-center gap-1">
+//                       <FaFire className="text-red-500" /> BESTSELLER
+//                     </div>
+//                   )}
+//                 </div>
+
+//                 {/* Content */}
+//                 <div className="p-3 sm:p-4">
+//                   {/* Price Section */}
+//                   <div className="flex items-center gap-2 mb-2">
+//                     <span className="text-xl sm:text-2xl font-bold text-red-500">
+//                       ₹{product.price}
+//                     </span>
+//                     {product.originalPrice && (
+//                       <span className="text-sm text-gray-400 line-through">
+//                         ₹{product.originalPrice}
+//                       </span>
+//                     )}
+//                   </div>
+
+//                   {/* Title */}
+//                   <h3 className="text-sm sm:text-base font-semibold text-gray-800 mb-2 line-clamp-2">
+//                     {product.name}
+//                   </h3>
+
+//                   {/* Meta Info */}
+//                   <div className="flex items-center gap-3 mb-3 text-xs sm:text-sm text-gray-600">
+//                     {product.time && (
+//                       <span className="flex items-center gap-1">
+//                         <FaClock className="text-red-400" />
+//                         {product.time}
+//                       </span>
+//                     )}
+//                     {product.pieces && (
+//                       <span className="bg-gray-200 px-2 py-0.5 rounded-full">
+//                         {product.pieces}
+//                       </span>
+//                     )}
+//                   </div>
+
+//                   {/* Stock Left */}
+//                   {product.stock > 0 && (
+//                     <div className="mb-3">
+//                       <div className="flex justify-between text-xs mb-1">
+//                         <span className="text-gray-600">Only {product.stock} left!</span>
+//                       </div>
+//                       <div className="w-full bg-gray-200 rounded-full h-1.5">
+//                         <div 
+//                           className="bg-red-500 h-1.5 rounded-full" 
+//                           style={{ width: `${(product.stock / 20) * 100}%` }}
+//                         />
+//                       </div>
+//                     </div>
+//                   )}
+
+//                   {/* Add to Cart / Quantity Controls */}
+//                   {quantity === 0 ? (
+//                     <button 
+//                       onClick={() => handleAddToCart(product)}
+//                       className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 sm:py-2.5 rounded-lg transition transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+//                     >
+//                       <span>ADD</span>
+//                       <span className="text-sm opacity-90">•</span>
+//                       <span className="text-sm">₹{product.price}</span>
+//                     </button>
+//                   ) : (
+//                     <div className="flex items-center justify-between bg-gray-100 rounded-lg p-1">
+//                       <button 
+//                         onClick={() => handleDecrement(product)}
+//                         className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-lg shadow flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition group"
+//                       >
+//                         <FaMinus className="text-sm sm:text-base text-gray-600 group-hover:text-red-500" />
+//                       </button>
+                      
+//                       <span className="font-bold text-sm sm:text-base text-gray-800">
+//                         {quantity}
+//                       </span>
+                      
+//                       <button 
+//                         onClick={() => handleIncrement(product)}
+//                         disabled={quantity >= product.stock}
+//                         className={`w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-lg shadow flex items-center justify-center transition group
+//                           ${quantity >= product.stock ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-50 hover:text-red-500'}`}
+//                       >
+//                         <FaPlus className={`text-sm sm:text-base ${quantity >= product.stock ? 'text-gray-300' : 'text-gray-600 group-hover:text-red-500'}`} />
+//                       </button>
+//                     </div>
+//                   )}
+//                 </div>
+//               </div>
+//             );
+//           })}
+//         </div>
+
+//         {/* Mobile Scroll Hint */}
+//         <div className="sm:hidden flex justify-center mt-2">
+//           <div className="bg-gray-200 rounded-full h-1 w-16"></div>
+//           <p className="text-xs text-gray-400 ml-2">Swipe to see more</p>
+//         </div>
+//       </div>
+//     </section>
+//   );
+// };
+
+// export default SpecialOffers;
+
+
+
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaChevronLeft, FaChevronRight, FaClock, FaFire, FaPlus, FaMinus } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom'; // 👈 Add this
+import { FaChevronLeft, FaChevronRight, FaClock, FaFire, FaPlus, FaMinus, FaLock } from 'react-icons/fa'; // 👈 Add FaLock
 import { addToCart, updateCartQuantity } from '../../redux/actions/cartActions';
-import { getProducts } from '../../services/api'; // API import
+import { getProducts } from '../../services/api';
 
 const SpecialOffers = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // 👈 Add this
   const scrollContainerRef = useRef(null);
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false); // 👈 Login prompt state
   
   const cartItems = useSelector((state) => state.cart?.cartItems || []);
+  const { user } = useSelector((state) => state.auth); // 👈 Get user from Redux
 
   // Fetch offers from backend
   useEffect(() => {
@@ -19,7 +263,6 @@ const SpecialOffers = () => {
 
   const fetchOffers = async () => {
     try {
-      // Get products with offers (discounted items)
       const response = await getProducts({ limit: 5 });
       setOffers(response.data.data);
     } catch (error) {
@@ -48,35 +291,73 @@ const SpecialOffers = () => {
     return cartItem ? cartItem.quantity : 0;
   };
 
-  // Handle add to cart - ✅ FIXED: Using only product._id
-const handleAddToCart = (product) => {
-  console.log('Adding to cart with ID:', product._id); // Debug log
-  dispatch(addToCart(product._id, 1)); // Sirf ID bhejo
-};
+  // ✅ Handle add to cart with login check
+  const handleAddToCart = (product) => {
+    if (!user) {
+      setShowLoginPrompt(true); // Show login popup
+      return;
+    }
+    
+    console.log('Adding to cart with ID:', product._id);
+    dispatch(addToCart(product._id, 1));
+  };
 
-// Handle increment
-const handleIncrement = (product) => {
-  const currentQty = getItemQuantity(product._id);
-  dispatch(updateCartQuantity(product._id, currentQty + 1));
-};
+  // Handle increment
+  const handleIncrement = (product) => {
+    const currentQty = getItemQuantity(product._id);
+    dispatch(updateCartQuantity(product._id, currentQty + 1));
+  };
 
-// Handle decrement
-const handleDecrement = (product) => {
-  const currentQty = getItemQuantity(product._id);
-  if (currentQty > 1) {
-    dispatch(updateCartQuantity(product._id, currentQty - 1));
-  } else {
-    dispatch(updateCartQuantity(product._id, 0));
-  }
-};
+  // Handle decrement
+  const handleDecrement = (product) => {
+    const currentQty = getItemQuantity(product._id);
+    if (currentQty > 1) {
+      dispatch(updateCartQuantity(product._id, currentQty - 1));
+    } else {
+      dispatch(updateCartQuantity(product._id, 0));
+    }
+  };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="text-center py-8">Loading...</div>;
   }
 
   return (
     <section className="py-6 sm:py-8 md:py-10 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Login Prompt Modal */}
+        {showLoginPrompt && (
+          <div className="fixed inset-0 bg-white bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl max-w-md w-full p-6 text-center">
+              <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <FaLock className="text-3xl text-red-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Login Required</h3>
+              <p className="text-gray-600 mb-6">
+                Please login or signup to add items to your cart.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowLoginPrompt(false);
+                    navigate('/login');
+                  }}
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg font-semibold transition"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => setShowLoginPrompt(false)}
+                  className="flex-1 border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 rounded-lg font-semibold transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div>
