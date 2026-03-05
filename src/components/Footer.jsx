@@ -125,7 +125,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-gray-400 hover:text-red-400 transition text-xs md:text-sm block">
+                <Link to="" className="text-gray-400 hover:text-red-400 transition text-xs md:text-sm block">
                   Contact Us
                 </Link>
               </li>
