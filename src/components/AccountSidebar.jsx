@@ -10,7 +10,8 @@ import {
   FaSignOutAlt,
   FaTimes,
   FaGift,
-  FaRegCommentDots
+  FaRegCommentDots,
+  FaHome
 } from 'react-icons/fa';
 import { MdDashboard, MdHelp } from 'react-icons/md';
 import { logout } from '../services/api';
@@ -74,6 +75,7 @@ const AccountSidebar = () => {
     // { icon: <FaGift />, label: 'Cashback', path: '/account/cashback' },
     // { icon: <FaWallet />, label: 'Wallet', path: '/account/wallet' },
 
+    { icon: <FaHome />, label: 'Home', path: '/' },
     { icon: <FaShoppingBag />, label: 'My Orders', path: '/my-orders' },
     {
       icon: <MdHelp />,
