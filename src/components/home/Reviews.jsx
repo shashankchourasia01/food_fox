@@ -84,7 +84,7 @@ const Reviews = () => {
   };
 
   return (
-    <section className="relative overflow-hidden min-h-[600px] sm:min-h-[700px] md:min-h-[800px] flex items-center">
+    <section className="relative overflow-hidden min-h-130 sm:min-h-145 md:min-h-160 flex items-center">
       {/* Background Image with Overlay */}
       <div 
         className="absolute inset-0 z-0"
@@ -202,12 +202,6 @@ const Reviews = () => {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Mobile Scroll Hint */}
-        <div className="md:hidden flex justify-center mt-4">
-          <div className="bg-gray-200 rounded-full h-1 w-16"></div>
-          <p className="text-xs text-gray-400 ml-2">Swipe to see more reviews</p>
         </div>
 
         {/* Dots Indicator (optional) */}
