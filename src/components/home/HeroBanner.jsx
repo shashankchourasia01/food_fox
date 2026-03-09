@@ -91,9 +91,9 @@ const HeroBanner = () => {
                 {banner.subtitle}
               </p>
               {/* CTA Button */}
-              <button className="mt-4 sm:mt-6 md:mt-8 bg-red-500 hover:bg-red-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full text-sm sm:text-base font-semibold transition transform hover:scale-105">
+              {/* <button className="mt-4 sm:mt-6 md:mt-8 bg-red-500 hover:bg-red-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full text-sm sm:text-base font-semibold transition transform hover:scale-105">
                 Order Now
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
