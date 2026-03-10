@@ -11,7 +11,7 @@ import MiniCart from './MiniCart';
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { location } = useGeolocation();  //  Hook se location le rahe hain
+  const { location } = useGeolocation();  //  Hook se location le rahe hain hai
   const cartItems = useSelector((state) => state.cart?.cartItems || []);
   const cartCount = cartItems.reduce((total, item) => total + (item.quantity || 0), 0);
   const [showMiniCart, setShowMiniCart] = useState(false);
