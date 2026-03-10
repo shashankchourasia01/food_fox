@@ -1,23 +1,22 @@
+// LocationPage.jsx - complete file with update function
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaArrowLeft, FaSearch, FaMapMarkerAlt, FaCrosshairs, FaPlus, FaCheck } from 'react-icons/fa';
+import { FaArrowLeft, FaSearch, FaMapMarkerAlt, FaPlus, FaCheck } from 'react-icons/fa';
 import { HiLocationMarker } from 'react-icons/hi';
-import { MdGpsFixed, MdMyLocation, MdOutlineLocationOn } from 'react-icons/md';
+import { MdGpsFixed, MdMyLocation } from 'react-icons/md';
 import useGeolocation from '../hooks/useGeolocation';
-import axios from 'axios'; // 👈 Install karna: npm install axios
+import axios from 'axios';
 
 const LocationPage = () => {
   const navigate = useNavigate();
-  const location = useGeolocation();
+  const { location, updateLocation } = useGeolocation();  // ✅ updateLocation function le liya
   const [searchQuery, setSearchQuery] = useState('');
   const [showManualSearch, setShowManualSearch] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState(null);
 
-  // Load saved addresses from localStorage on mount
   useEffect(() => {
     loadSavedAddresses();
   }, []);
@@ -32,7 +31,6 @@ const LocationPage = () => {
     }
   };
 
-  // Handle use current location
   const handleUseCurrentLocation = () => {
     setLoading(true);
     
@@ -45,55 +43,36 @@ const LocationPage = () => {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
-          // Get address from coordinates using reverse geocoding
           const { latitude, longitude } = position.coords;
           
-          // Using OpenStreetMap Nominatim API (free)
           const response = await axios.get(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
           );
           
-          const address = response.data.display_name || 
-                         `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+          const address = response.data.display_name;
           
-          // Save to localStorage
+          // ✅ Update localStorage
           localStorage.setItem('userAddress', address);
           localStorage.setItem('userCoordinates', JSON.stringify({ latitude, longitude }));
           
-          // Success - go back
+          // ✅ Update the hook state
+          updateLocation(address, { latitude, longitude });
+          
           navigate(-1);
         } catch (error) {
           console.error('Error getting address:', error);
-          alert('Failed to get your location. Please try again or enter manually.');
+          alert('Failed to get your location. Please try again.');
         } finally {
           setLoading(false);
         }
       },
       (error) => {
         setLoading(false);
-        switch(error.code) {
-          case error.PERMISSION_DENIED:
-            alert('Please allow location access to use this feature');
-            break;
-          case error.POSITION_UNAVAILABLE:
-            alert('Location information is unavailable');
-            break;
-          case error.TIMEOUT:
-            alert('Location request timed out');
-            break;
-          default:
-            alert('An unknown error occurred');
-        }
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
+        alert('Location access denied. Please allow location access.');
       }
     );
   };
 
-  // Handle manual search
   const handleSearch = async (query) => {
     setSearchQuery(query);
     
@@ -105,7 +84,6 @@ const LocationPage = () => {
     setSearchLoading(true);
     
     try {
-      // Using OpenStreetMap Nominatim API for search (free)
       const response = await axios.get(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}, Bangalore`
       );
@@ -127,44 +105,18 @@ const LocationPage = () => {
     }
   };
 
-  // Handle address selection
   const handleSelectAddress = (address, lat = null, lon = null) => {
+    // ✅ Save to localStorage
     localStorage.setItem('userAddress', address);
     
     if (lat && lon) {
-      localStorage.setItem('userCoordinates', JSON.stringify({ latitude: lat, longitude: lon }));
+      localStorage.setItem('userCoordinates', JSON.stringify({ latitude: parseFloat(lat), longitude: parseFloat(lon) }));
     }
+    
+    // ✅ Update the hook state
+    updateLocation(address, lat && lon ? { latitude: parseFloat(lat), longitude: parseFloat(lon) } : null);
     
     navigate(-1);
-  };
-
-  // Save new address to saved addresses
-  const handleSaveAddress = (address, lat, lon) => {
-    const newAddress = {
-      id: Date.now(),
-      type: 'Other',
-      address: address,
-      details: 'Saved from search',
-      lat: lat,
-      lon: lon,
-      timestamp: new Date().toISOString()
-    };
-    
-    const updatedAddresses = [...savedAddresses, newAddress];
-    localStorage.setItem('savedAddresses', JSON.stringify(updatedAddresses));
-    setSavedAddresses(updatedAddresses);
-    
-    // Also select this address
-    handleSelectAddress(address, lat, lon);
-  };
-
-  // Get icon based on address type
-  const getAddressIcon = (type) => {
-    switch(type?.toLowerCase()) {
-      case 'home': return '🏠';
-      case 'work': return '💼';
-      default: return '📍';
-    }
   };
 
   return (
@@ -176,7 +128,6 @@ const LocationPage = () => {
             <button 
               onClick={() => navigate(-1)}
               className="p-2 hover:bg-gray-100 rounded-full transition mr-2"
-              aria-label="Go back"
             >
               <FaArrowLeft className="text-gray-600 text-lg" />
             </button>
@@ -212,14 +163,14 @@ const LocationPage = () => {
                 {loading ? 'Getting location...' : 'Use Current Location'}
               </h3>
               <p className="text-sm text-blue-100 line-clamp-1">
-                {location.loading ? 'Detecting...' : location.address || 'Tap to detect your location'}
+                {location.address || 'Tap to detect your location'}
               </p>
             </div>
             {!loading && <MdGpsFixed className="text-3xl animate-pulse" />}
           </div>
         </div>
 
-        {/* Manual Address Search Toggle */}
+        {/* Manual Search Toggle */}
         <button
           onClick={() => setShowManualSearch(!showManualSearch)}
           className="w-full flex items-center justify-between p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition mb-4 border border-gray-100"
@@ -260,7 +211,6 @@ const LocationPage = () => {
             {/* Search Results */}
             {searchResults.length > 0 && (
               <div className="mt-3 space-y-2 max-h-60 overflow-y-auto">
-                <p className="text-xs text-gray-500 px-2">Search results</p>
                 {searchResults.map((result) => (
                   <div 
                     key={result.id}
@@ -270,91 +220,13 @@ const LocationPage = () => {
                     <FaMapMarkerAlt className="text-gray-400 group-hover:text-blue-500 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-gray-700 line-clamp-2">{result.address}</p>
-                      <p className="text-xs text-gray-400 mt-1 capitalize">{result.type}</p>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSaveAddress(result.address, result.lat, result.lon);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 transition bg-blue-50 text-blue-600 p-2 rounded-full"
-                      title="Save address"
-                    >
-                      <FaPlus className="text-xs" />
-                    </button>
                   </div>
                 ))}
               </div>
             )}
-
-            {searchQuery.length >= 3 && searchResults.length === 0 && !searchLoading && (
-              <div className="text-center py-6 text-gray-500">
-                <FaMapMarkerAlt className="text-4xl mx-auto mb-2 opacity-30" />
-                <p className="text-sm">No results found</p>
-                <p className="text-xs text-gray-400 mt-1">Try a different search term</p>
-              </div>
-            )}
           </div>
         )}
-
-        {/* Saved Addresses */}
-        {savedAddresses.length > 0 && (
-          <div className="mb-6">
-            <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-              <HiLocationMarker className="text-blue-500" />
-              Saved Addresses
-            </h3>
-            <div className="space-y-3">
-              {savedAddresses.map((addr) => (
-                <div 
-                  key={addr.id}
-                  onClick={() => handleSelectAddress(addr.address, addr.lat, addr.lon)}
-                  className="flex items-start gap-3 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-blue-300 cursor-pointer transition group"
-                >
-                  <div className="bg-blue-50 rounded-full p-2 mt-1">
-                    <span className="text-lg">{getAddressIcon(addr.type)}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-gray-800 mb-1 flex items-center gap-2">
-                      {addr.type}
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                        Saved
-                      </span>
-                    </h4>
-                    <p className="text-sm text-gray-600 mb-1 line-clamp-2">{addr.address}</p>
-                    <p className="text-xs text-gray-400">{addr.details}</p>
-                  </div>
-                  <FaCheck className="text-blue-500 opacity-0 group-hover:opacity-100 transition" />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Recent Searches (Dummy) */}
-        <div className="mb-6">
-          <h3 className="font-semibold text-gray-700 mb-3">Popular Areas in Bangalore</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {['Indiranagar', 'Koramangala', 'HSR Layout', 'Jayanagar', 'Whitefield', 'MG Road'].map((area) => (
-              <button
-                key={area}
-                onClick={() => handleSelectAddress(`${area}, Bangalore`)}
-                className="bg-white border border-gray-200 rounded-lg p-3 text-sm text-gray-700 hover:border-blue-400 hover:text-blue-600 transition text-center"
-              >
-                {area}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Add New Address Button */}
-        <button 
-          onClick={() => setShowManualSearch(true)}
-          className="w-full border-2 border-dashed border-gray-300 rounded-xl p-4 text-gray-600 hover:border-blue-500 hover:text-blue-500 hover:bg-blue-50 transition flex items-center justify-center gap-2"
-        >
-          <FaPlus />
-          <span>Add New Address</span>
-        </button>
       </div>
     </div>
   );
