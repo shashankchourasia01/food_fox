@@ -298,53 +298,107 @@ const validateSelectedAddress = () => {
 };
 
     // Place order
-    const handlePlaceOrder = async () => {
-        if (!validateSelectedAddress()) {
-            return;
-        }
+    // const handlePlaceOrder = async () => {
+    //     if (!validateSelectedAddress()) {
+    //         return;
+    //     }
 
-        if (!cartItems || cartItems.length === 0) {
-            alert('Your cart is empty');
-            return;
-        }
+    //     if (!cartItems || cartItems.length === 0) {
+    //         alert('Your cart is empty');
+    //         return;
+    //     }
 
-        try {
-            setLoading(true);
+    //     try {
+    //         setLoading(true);
 
-            const orderData = {
-                shippingAddress: {
-                    fullName: user?.name || 'Customer',
-                    phone: user?.phone || '',
-                    address: selectedAddress.address,
-                    landmark: selectedAddress.landmark || '',
-                    city: selectedAddress.city,
-                    pincode: selectedAddress.pincode,
-                    type: selectedAddress.type || 'home'
-                },
-                paymentMethod,
-                itemsPrice: subtotal,
-                deliveryPrice: deliveryCharge,
-                totalPrice: total,
-                notes: ''
-            };
+    //         const orderData = {
+    //             shippingAddress: {
+    //                 fullName: user?.name || 'Customer',
+    //                 phone: user?.phone || '',
+    //                 address: selectedAddress.address,
+    //                 landmark: selectedAddress.landmark || '',
+    //                 city: selectedAddress.city,
+    //                 pincode: selectedAddress.pincode,
+    //                 type: selectedAddress.type || 'home'
+    //             },
+    //             paymentMethod,
+    //             itemsPrice: subtotal,
+    //             deliveryPrice: deliveryCharge,
+    //             totalPrice: total,
+    //             notes: ''
+    //         };
 
-            console.log('📦 Order Data:', orderData);
+    //         console.log('📦 Order Data:', orderData);
 
-            const result = await dispatch(createOrder(orderData));
+    //         const result = await dispatch(createOrder(orderData));
 
-            if (result && result._id) {
-                navigate(`/order-success/${result._id}`);
-            } else {
-                throw new Error('Order created but no ID returned');
-            }
+    //         if (result && result._id) {
+    //             navigate(`/order-success/${result._id}`);
+    //         } else {
+    //             throw new Error('Order created but no ID returned');
+    //         }
 
-        } catch (error) {
-            console.error('❌ Order error:', error);
-            alert(error.response?.data?.message || 'Failed to place order. Please try again.');
-        } finally {
-            setLoading(false);
-        }
+    //     } catch (error) {
+    //         console.error('❌ Order error:', error);
+    //         alert(error.response?.data?.message || 'Failed to place order. Please try again.');
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+
+
+  // handlePlaceOrder function में changes
+const handlePlaceOrder = async () => {
+  if (!selectedAddress) {
+    alert('Please select a delivery address');
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const orderData = {
+      shippingAddress: {
+        fullName: user?.name || 'Customer',
+        phone: user?.phone || '',
+        address: selectedAddress.address,
+        landmark: selectedAddress.landmark || '',
+        city: selectedAddress.city,
+        pincode: selectedAddress.pincode,
+        type: selectedAddress.type || 'home'
+      },
+      paymentMethod,
+      itemsPrice: subtotal,
+      deliveryPrice: deliveryCharge,
+      totalPrice: total,
+      notes: ''
     };
+
+    console.log('📦 Order Data:', orderData);
+
+    const result = await dispatch(createOrder(orderData));
+    
+    if (result && result._id) {
+      // ✅ WhatsApp notification open करो
+      if (result.whatsappUrl) {
+        window.open(result.whatsappUrl, '_blank');
+      }
+      
+      // Success page पर जाओ
+      navigate(`/order-success/${result._id}`);
+    }
+    
+  } catch (error) {
+    console.error('❌ Order error:', error);
+    alert(error.response?.data?.message || 'Failed to place order. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
 
     // Address Type Icon
     const getAddressIcon = (type) => {
