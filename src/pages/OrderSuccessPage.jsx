@@ -30,21 +30,29 @@ const OrderSuccessPage = () => {
   };
 
   const sendWhatsAppNotification = () => {
-    const adminNumber = '919229264244'; 
-    const message = `🛑 *NEW ORDER RECEIVED!*\n\n` +
-      `*Order ID:* #${orderId.slice(-8)}\n` +
-      `*Customer:* ${order?.user?.name || 'N/A'}\n` +
-      `*Phone:* ${order?.shippingAddress?.phone || 'N/A'}\n` +
-      `*Total:* ₹${order?.totalPrice || 0}\n` +
-      `*Payment:* ${order?.paymentMethod || 'COD'}\n` +
-      `*Items:* ${order?.orderItems?.length || 0} items\n\n` +
-      `*Address:* ${order?.shippingAddress?.address || 'N/A'}\n` +
-      `${order?.shippingAddress?.city || ''} - ${order?.shippingAddress?.pincode || ''}\n\n` +
-      `🔗 *View Order:* ${window.location.origin}/admin/orders/${orderId}`;
-    
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/${adminNumber}?text=${encodedMessage}`, '_blank');
-  };
+  const adminNumber = '919229264244'; 
+  
+  // ✅ FIX: Safely get order ID as string
+  let orderIdString = orderId;
+  if (orderIdString && typeof orderIdString === 'object') {
+    orderIdString = orderIdString.toString();
+  }
+  const shortId = orderIdString ? orderIdString.slice(-8) : 'N/A';
+  
+  const message = `🛑 *NEW ORDER RECEIVED!*\n\n` +
+    `*Order ID:* #${shortId}\n` +
+    `*Customer:* ${order?.user?.name || 'N/A'}\n` +
+    `*Phone:* ${order?.shippingAddress?.phone || 'N/A'}\n` +
+    `*Total:* ₹${order?.totalPrice || 0}\n` +
+    `*Payment:* ${order?.paymentMethod || 'COD'}\n` +
+    `*Items:* ${order?.orderItems?.length || 0} items\n\n` +
+    `*Address:* ${order?.shippingAddress?.address || 'N/A'}\n` +
+    `${order?.shippingAddress?.city || ''} - ${order?.shippingAddress?.pincode || ''}\n\n` +
+    `🔗 *View Order:* ${window.location.origin}/admin/orders/${orderIdString}`;
+  
+  const encodedMessage = encodeURIComponent(message);
+  window.open(`https://wa.me/${adminNumber}?text=${encodedMessage}`, '_blank');
+};
 
   // ✅ यह useEffect ब्राउज़र पॉलिसी को बायपास करने के लिए है
   useEffect(() => {
