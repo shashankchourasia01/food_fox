@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { FaShoppingCart, FaUserCircle, FaMapMarkerAlt } from 'react-icons/fa';
+import { 
+  FaShoppingCart, 
+  FaUserCircle, 
+  FaMapMarkerAlt,
+  FaHome  // 👈 Home icon import
+} from 'react-icons/fa';
 import { HiLocationMarker } from 'react-icons/hi';
 import useGeolocation from '../hooks/useGeolocation';
 import { openAccountSidebar } from '../redux/actions/uiActions';
@@ -11,40 +16,60 @@ import MiniCart from './MiniCart';
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { location } = useGeolocation();  //  Hook se location le rahe hain
+  const { location } = useGeolocation();
   const cartItems = useSelector((state) => state.cart?.cartItems || []);
   const cartCount = cartItems.reduce((total, item) => total + (item.quantity || 0), 0);
   const [showMiniCart, setShowMiniCart] = useState(false);
+
+  // Handle home navigation
+  const handleHomeClick = () => {
+    navigate('/');
+  };
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
-          {/* Left Side - Delivery Location - Clickable */}
-          <div 
-            className="flex items-center space-x-2 flex-1 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition"
-            onClick={() => navigate('/location')}
-          >
-            <HiLocationMarker className="text-red-500 text-xl flex-shrink-0" />
-            <div className="flex flex-col">
-              <span className="text-xs text-gray-500">Deliver to</span>
-              <div className="flex items-center space-x-1">
-                <span className="text-sm font-semibold text-gray-800 truncate max-w-[150px] sm:max-w-[200px] md:max-w-[250px]">
-                  {location.loading ? (
-                    <span className="text-gray-400">Detecting...</span>
-                  ) : (
-                    location.address
-                  )}
-                </span>
-                <FaMapMarkerAlt className="text-gray-400 text-xs" />
+          {/* Left Section - Logo/Brand + Home */}
+          <div className="flex items-center space-x-4">
+            {/* Home Icon */}
+            <button
+              onClick={handleHomeClick}
+              className="flex items-center space-x-1 p-2 hover:bg-gray-100 rounded-lg transition group"
+              aria-label="Home"
+            >
+              <FaHome className="text-xl text-gray-700 group-hover:text-red-500 transition" />
+              <span className="hidden sm:inline text-sm font-medium text-gray-700 group-hover:text-red-500 transition">
+                Home
+              </span>
+            </button>
+
+            {/* Delivery Location */}
+            <div 
+              className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition"
+              onClick={() => navigate('/location')}
+            >
+              <HiLocationMarker className="text-red-500 text-xl flex-shrink-0" />
+              <div className="flex flex-col">
+                <span className="text-xs text-gray-500">Deliver to</span>
+                <div className="flex items-center space-x-1">
+                  <span className="text-sm font-semibold text-gray-800 truncate max-w-[150px] sm:max-w-[200px] md:max-w-[250px]">
+                    {location.loading ? (
+                      <span className="text-gray-400">Detecting...</span>
+                    ) : (
+                      location.address
+                    )}
+                  </span>
+                  <FaMapMarkerAlt className="text-gray-400 text-xs" />
+                </div>
               </div>
             </div>
           </div>
 
           {/* Right Side - Cart & Account */}
           <div className="flex items-center space-x-4">
-            {/* Cart Icon with Hover MiniCart */}
+            {/* Cart Icon with MiniCart */}
             <div 
               className="relative"
               onMouseEnter={() => setShowMiniCart(true)}
@@ -53,6 +78,7 @@ const Navbar = () => {
               <Link 
                 to="/cart" 
                 className="relative p-2 hover:bg-gray-100 rounded-full transition group block"
+                onClick={() => setShowMiniCart(false)} // Close cart on navigation
               >
                 <FaShoppingCart className="text-2xl text-gray-700 group-hover:text-red-500 transition" />
                 {cartCount > 0 && (
@@ -65,7 +91,7 @@ const Navbar = () => {
               {/* Mini Cart Dropdown */}
               {showMiniCart && (
                 <div className="absolute top-12 right-0 z-50">
-                  <MiniCart />
+                  <MiniCart onClose={() => setShowMiniCart(false)} />
                 </div>
               )}
             </div>
@@ -96,7 +122,6 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
 
 
 // import React, { useState } from 'react';
