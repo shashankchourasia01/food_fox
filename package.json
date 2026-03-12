@@ -12,8 +12,10 @@
   "dependencies": {
     "@redux-devtools/extension": "^3.3.0",
     "@tailwindcss/vite": "^4.2.0",
+    "@types/lodash": "^4.17.24",
     "axios": "^1.13.5",
     "firebase": "^12.10.0",
+    "lodash": "^4.17.23",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-icons": "^5.5.0",

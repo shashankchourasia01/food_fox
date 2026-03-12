@@ -10,7 +10,6 @@ const useGeolocation = () => {
   });
 
   const fetchLocation = async () => {
-    // Agar localStorage mein already address hai to fetch mat karo
     const savedAddress = localStorage.getItem('userAddress');
     if (savedAddress) {
       setLocation({
@@ -79,7 +78,6 @@ const useGeolocation = () => {
     );
   };
 
-  // Manual update function - yeh use karenge LocationPage se
   const updateLocation = (newAddress, newCoordinates) => {
     setLocation({
       address: newAddress,
@@ -97,21 +95,19 @@ export default useGeolocation;
 
 
 
-
-
 // import { useState, useEffect } from 'react';
 // import axios from 'axios';
 
 // const useGeolocation = () => {
 //   const [location, setLocation] = useState({
-//     address: 'Detecting your location...',
-//     coordinates: null,
-//     loading: true,
+//     address: localStorage.getItem('userAddress') || 'Detecting your location...',
+//     coordinates: JSON.parse(localStorage.getItem('userCoordinates')) || null,
+//     loading: !localStorage.getItem('userAddress'),
 //     error: null
 //   });
 
-//   useEffect(() => {
-//     // Pehle check karo localStorage mein address hai ya nahi
+//   const fetchLocation = async () => {
+//     // Agar localStorage mein already address hai to fetch mat karo
 //     const savedAddress = localStorage.getItem('userAddress');
 //     if (savedAddress) {
 //       setLocation({
@@ -123,7 +119,6 @@ export default useGeolocation;
 //       return;
 //     }
 
-//     // Agar nahi hai to geolocation fetch karo
 //     if (!navigator.geolocation) {
 //       setLocation({
 //         address: 'Geolocation not supported',
@@ -134,12 +129,13 @@ export default useGeolocation;
 //       return;
 //     }
 
+//     setLocation(prev => ({ ...prev, loading: true }));
+
 //     navigator.geolocation.getCurrentPosition(
 //       async (position) => {
 //         try {
 //           const { latitude, longitude } = position.coords;
           
-//           // Reverse geocoding using OpenStreetMap (free)
 //           const response = await axios.get(
 //             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
 //           );
@@ -147,7 +143,6 @@ export default useGeolocation;
 //           const address = response.data.display_name || 
 //                          `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
           
-//           // LocalStorage mein save karo
 //           localStorage.setItem('userAddress', address);
 //           localStorage.setItem('userCoordinates', JSON.stringify({ latitude, longitude }));
           
@@ -179,9 +174,19 @@ export default useGeolocation;
 //         });
 //       }
 //     );
-//   }, []);
+//   };
 
-//   return location;
+//   // Manual update function - yeh use karenge LocationPage se
+//   const updateLocation = (newAddress, newCoordinates) => {
+//     setLocation({
+//       address: newAddress,
+//       coordinates: newCoordinates,
+//       loading: false,
+//       error: null
+//     });
+//   };
+
+//   return { location, fetchLocation, updateLocation };
 // };
 
 // export default useGeolocation;

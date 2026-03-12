@@ -38,3 +38,21 @@
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+
+
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out;
+}
