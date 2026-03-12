@@ -161,14 +161,14 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-3">
             <div className="flex items-center gap-1 text-xs text-gray-500">
               <span>© {currentYear}</span>
-              <span className="font-semibold text-red-400">FLAVORFIX TECH INC.</span>
+              <span className="font-semibold text-red-400">SARASWATI KITCHENS</span>
               <span>All rights reserved.</span>
             </div>
             
             <div className="flex items-center gap-1 text-xs text-gray-500">
               <span>Made with</span>
               <FaHeart className="text-red-500 mx-1" />
-              <span>in India</span>
+              <span>Shashank - 9304637399</span>
             </div>
           </div>
         </div>
