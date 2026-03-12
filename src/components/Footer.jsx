@@ -28,10 +28,10 @@ const Footer = () => {
   };
 
   return (
-    <footer className="relative bg-gradient-to-br from-gray-900 via-red-900 to-gray-900 text-white overflow-hidden">
+    <footer className="relative bg-linear-to-br from-gray-900 via-red-900 to-gray-900 text-white overflow-hidden">
       
       {/* Small Decorative Line at Top */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-orange-500"></div>
+      <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-red-500 to-orange-500"></div>
       
       {/* Curved Shape at Top */}
       <div className="absolute top-0 left-0 w-full overflow-hidden opacity-30">
@@ -50,7 +50,7 @@ const Footer = () => {
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center gap-2 mb-3">
             <MdRestaurantMenu className="text-2xl md:text-3xl text-red-400" />
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-red-300 to-orange-300 text-transparent bg-clip-text">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-linear-to-r from-red-300 to-orange-300 text-transparent bg-clip-text">
               FlavorFix
             </h2>
             <MdRestaurant className="text-2xl md:text-3xl text-orange-400" />

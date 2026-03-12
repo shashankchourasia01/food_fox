@@ -192,7 +192,7 @@ const HeroBanner = () => {
     <div className="relative w-full py-4 sm:py-6 bg-gray-50">
       {/* Main Container with Rounded Corners */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative w-full h-[250px] sm:h-[350px] md:h-[450px] lg:h-[550px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl">
+        <div className="relative w-full h-62.5 sm:h-87.5 md:h-112.5 lg:h-137.5 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl">
           
           {/* Banner Images */}
           {bannerImages.map((banner, index) => (

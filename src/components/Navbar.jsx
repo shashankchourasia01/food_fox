@@ -73,7 +73,7 @@ const Navbar = () => {
             {/* Home Icon */}
             <button
               onClick={handleHomeClick}
-              className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 hover:bg-gray-100 rounded-lg transition group flex-shrink-0"
+              className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 hover:bg-gray-100 rounded-lg transition group shrink-0"
               aria-label="Home"
             >
               <FaHome className="text-lg sm:text-xl text-gray-700 group-hover:text-red-500 transition" />
@@ -84,24 +84,24 @@ const Navbar = () => {
               className="flex items-center space-x-1 sm:space-x-2 cursor-pointer hover:bg-gray-50 p-1.5 sm:p-2 rounded-lg transition ml-1 sm:ml-2 flex-1 min-w-0 relative"
               onClick={() => navigate('/location')}
             >
-              <HiLocationMarker className="text-red-500 text-lg sm:text-xl flex-shrink-0" />
+              <HiLocationMarker className="text-red-500 text-lg sm:text-xl shrink-0" />
               <div className="flex flex-col min-w-0">
                 <span className="text-[10px] sm:text-xs text-gray-500">Deliver to</span>
                 <div className="flex items-center space-x-1">
-                  <span className="text-xs sm:text-sm font-semibold text-gray-800 truncate max-w-[100px] xs:max-w-[120px] sm:max-w-[180px] md:max-w-[220px]">
+                  <span className="text-xs sm:text-sm font-semibold text-gray-800 truncate max-w-25 xs:max-w-[120px] sm:max-w-45 md:max-w-55">
                     {location.loading ? (
                       <span className="text-gray-400 animate-pulse">Detecting...</span>
                     ) : (
                       location.address || 'Select location'
                     )}
                   </span>
-                  <FaMapMarkerAlt className="text-gray-400 text-[10px] sm:text-xs flex-shrink-0" />
+                  <FaMapMarkerAlt className="text-gray-400 text-[10px] sm:text-xs shrink-0" />
                 </div>
               </div>
 
               {/* Delivery Status Badge */}
               {deliveryStatus.isDeliverable !== null && !location.loading && (
-                <div className={`ml-2 flex-shrink-0 text-xs font-medium px-2 py-1 rounded-full ${
+                <div className={`ml-2 shrink-0 text-xs font-medium px-2 py-1 rounded-full ${
                   deliveryStatus.isDeliverable 
                     ? 'bg-green-100 text-green-700' 
                     : 'bg-red-100 text-red-700'
@@ -113,7 +113,7 @@ const Navbar = () => {
           </div>
 
           {/* Right Section - Cart & Account */}
-          <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+          <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
             {/* Cart Icon */}
             <div className="relative">
               <button

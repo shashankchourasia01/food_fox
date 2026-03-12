@@ -20,7 +20,7 @@ const DeliveryFeatures = () => {
           {/* 1. Live GPS Active Card */}
           <div 
             onClick={handleGPSClick}
-            className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 sm:p-5 border border-blue-200 shadow-sm hover:shadow-md transition cursor-pointer group"
+            className="bg-linear-to-br from-blue-50 to-blue-100 rounded-2xl p-4 sm:p-5 border border-blue-200 shadow-sm hover:shadow-md transition cursor-pointer group"
           >
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -63,7 +63,7 @@ const DeliveryFeatures = () => {
           </div>
 
           {/* 2. Lunch Time Tiffin Service Card (NEW) */}
-          <div className="bg-gradient-to-br from-amber-50 to-orange-100 rounded-2xl p-4 sm:p-5 border border-amber-200 shadow-sm">
+          <div className="bg-linear-to-br from-amber-50 to-orange-100 rounded-2xl p-4 sm:p-5 border border-amber-200 shadow-sm">
             <div className="flex items-start gap-3">
               <div className="bg-amber-600 rounded-full p-2 sm:p-3">
                 <GiFoodTruck className="text-white text-xl sm:text-2xl" />

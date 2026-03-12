@@ -107,7 +107,7 @@ const AccountSidebar = () => {
         ${isAccountSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         {/* Header */}
-        <div className="bg-gradient-to-r from-red-500 to-red-600 p-6 text-white">
+        <div className="bg-linear-to-r from-red-500 to-red-600 p-6 text-white">
           <div className="flex justify-between items-start">
             <div className="flex items-center space-x-3">
               <FaUserCircle className="text-5xl" />

@@ -466,7 +466,7 @@ const CheckoutPage = () => {
                                                         <FaTrash />
                                                     </button>
                                                     {selectedAddress?._id === addr._id && (
-                                                        <FaCheck className="text-red-500 text-lg flex-shrink-0 ml-2" />
+                                                        <FaCheck className="text-red-500 text-lg shrink-0 ml-2" />
                                                     )}
                                                 </div>
                                             </div>
