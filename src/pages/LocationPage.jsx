@@ -145,7 +145,7 @@ const LocationPage = () => {
         <div 
           onClick={handleUseCurrentLocation}
           className={`
-            bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-4 sm:p-5 text-white mb-6 
+            bg-linear-to-r from-blue-500 to-blue-600 rounded-xl p-4 sm:p-5 text-white mb-6 
             cursor-pointer transition-all transform hover:scale-[1.02] hover:shadow-xl
             ${loading ? 'opacity-75 cursor-wait' : ''}
           `}
@@ -217,7 +217,7 @@ const LocationPage = () => {
                     onClick={() => handleSelectAddress(result.address, result.lat, result.lon)}
                     className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer group"
                   >
-                    <FaMapMarkerAlt className="text-gray-400 group-hover:text-blue-500 flex-shrink-0" />
+                    <FaMapMarkerAlt className="text-gray-400 group-hover:text-blue-500 shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-gray-700 line-clamp-2">{result.address}</p>
                     </div>

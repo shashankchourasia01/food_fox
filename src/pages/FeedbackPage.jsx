@@ -132,7 +132,7 @@ const FeedbackPage = () => {
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             
             {/* Header Gradient */}
-            <div className="bg-gradient-to-r from-red-500 to-red-600 p-6 text-white">
+            <div className="bg-linear-to-r from-red-500 to-red-600 p-6 text-white">
               <h2 className="text-xl font-semibold mb-2">We Value Your Opinion!</h2>
               <p className="text-sm opacity-90">
                 Your feedback helps us serve you better. All responses are reviewed by our team.
@@ -254,7 +254,7 @@ const FeedbackPage = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl font-semibold text-lg
+                className={`w-full bg-linear-to-r from-green-500 to-green-600 text-white py-4 rounded-xl font-semibold text-lg
                   flex items-center justify-center gap-3 transition transform hover:scale-[1.02] active:scale-[0.98]
                   ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:from-green-600 hover:to-green-700'}`}
               >

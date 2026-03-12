@@ -610,7 +610,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 py-6 sm:py-8">
+    <div className="min-h-screen bg-linear-to-br from-red-50 to-orange-50 py-6 sm:py-8">
       <div className="container mx-auto px-4">
         {/* Header with Back Button */}
         <div className="flex items-center gap-4 mb-6">

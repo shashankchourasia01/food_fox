@@ -133,7 +133,7 @@ const MyOrdersPage = () => {
         {/* Filter Bar */}
         <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 mb-4 sm:mb-6">
           <div className="flex items-center gap-2 overflow-x-auto pb-2 hide-scrollbar">
-            <FaFilter className="text-gray-400 flex-shrink-0" />
+            <FaFilter className="text-gray-400 shrink-0" />
             {statusOptions.map((option) => (
               <button
                 key={option.value}
