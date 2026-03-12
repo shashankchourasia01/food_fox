@@ -392,7 +392,7 @@ const SpecialOffers = () => {
             return (
               <div 
                 key={product._id}
-                className="flex-none w-[280px] sm:w-[300px] md:w-[320px] bg-white rounded-xl shadow-lg hover:shadow-xl transition border border-gray-100"
+                className="flex-none w-70 sm:w-75 md:w-[320px] bg-white rounded-xl shadow-lg hover:shadow-xl transition border border-gray-100"
               >
                 {/* Image Container */}
                 <div className="relative h-40 sm:h-44 md:h-48 rounded-t-xl overflow-hidden">

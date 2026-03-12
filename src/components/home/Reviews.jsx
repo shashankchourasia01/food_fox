@@ -140,7 +140,7 @@ const Reviews = () => {
           {reviewsData.map((review) => (
             <div 
               key={review.id}
-              className="flex-none w-[300px] sm:w-[350px] md:w-[400px] lg:w-[450px] bg-white rounded-2xl shadow-xl hover:shadow-2xl transition p-6 sm:p-8"
+              className="flex-none w-75 sm:w-87.5 md:w-100 lg:w-112.5 bg-white rounded-2xl shadow-xl hover:shadow-2xl transition p-6 sm:p-8"
             >
               {/* Quote Icon */}
               <div className="text-red-500 mb-4">
