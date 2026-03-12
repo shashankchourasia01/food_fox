@@ -51,7 +51,7 @@ const Footer = () => {
           <div className="inline-flex items-center justify-center gap-2 mb-3">
             <MdRestaurantMenu className="text-2xl md:text-3xl text-red-400" />
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-linear-to-r from-red-300 to-orange-300 text-transparent bg-clip-text">
-              FlavorFix
+              SARASWTI KITCHENS
             </h2>
             <MdRestaurant className="text-2xl md:text-3xl text-orange-400" />
           </div>
