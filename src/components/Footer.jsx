@@ -121,6 +121,19 @@ const Footer = () => {
                   Exclusive Partners
                 </Link>
               </li>
+
+
+              
+<li>
+  <Link to="/terms" className="text-gray-400 hover:text-red-400 transition text-xs md:text-sm block">
+    Terms & Conditions
+  </Link>
+</li>
+
+
+
+
+
             </ul>
           </div>
 
@@ -146,6 +159,16 @@ const Footer = () => {
                   Contact Us
                 </button>
               </li>
+              <li>
+  <Link to="/privacy" className="text-gray-400 hover:text-red-400 transition text-xs md:text-sm block">
+    Privacy Policy
+  </Link>
+</li>
+<li>
+  <Link to="/refund" className="text-gray-400 hover:text-red-400 transition text-xs md:text-sm block">
+    Refund Policy
+  </Link>
+</li>
             </ul>
           </div>
         </div>

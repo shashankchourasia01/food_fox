@@ -24,6 +24,13 @@ import MyOrdersPage from './pages/MyOrdersPage';
 
 import { LOGIN_SUCCESS } from './redux/constants/authConstants';
 
+//policy imports
+import TermsPage from './pages/policy/TermsPage';
+import PrivacyPage from './pages/policy/PrivacyPage';
+import RefundPage from './pages/policy/RefundPage';
+import ContactPage from './pages/policy/ContactPage';
+import PolicyLayout from './pages/PolicyLayout';
+
 // Admin Layout Component (defined outside App)
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -105,6 +112,29 @@ const AppContent = () => {
               <AdminUsers />
             </AdminLayout>
           } />
+
+          //policy Routes
+          <Route path="/terms" element={
+            <PolicyLayout>
+              <TermsPage />
+            </PolicyLayout>
+          } />
+          <Route path="/privacy" element={
+            <PolicyLayout>
+              <PrivacyPage />
+            </PolicyLayout>
+          } />
+          <Route path="/refund" element={
+            <PolicyLayout>
+              <RefundPage />
+            </PolicyLayout>
+          } />
+          <Route path="/contact" element={
+            <PolicyLayout>
+              <ContactPage />
+            </PolicyLayout>
+          } />
+
         </Routes>
       </main>
       <Footer />
