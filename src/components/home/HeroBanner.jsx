@@ -146,19 +146,19 @@ import React, { useState, useEffect } from 'react';
 const bannerImages = [
   {
     id: 1,
-    image: '/images/banners/banner1.webp'
+    image: '/images/banners/banner1.jpeg'
   },
   {
     id: 2,
-    image: '/images/banners/banner2.webp'
+    image: '/images/banners/banner2.jpeg'
   },
   {
     id: 3,
-    image: '/images/banners/banner3.webp'
+    image: '/images/banners/banner3.jpeg'
   },
   {
     id: 4,
-    image: '/images/banners/banner4.webp'
+    image: '/images/banners/banner4.jpeg'
   },
   {
     id: 5,
