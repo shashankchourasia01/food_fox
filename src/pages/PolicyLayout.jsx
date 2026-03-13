@@ -11,7 +11,7 @@ const PolicyLayout = ({ children }) => {
     { path: '/terms', label: 'Terms & Conditions', icon: <FaFileContract /> },
     { path: '/privacy', label: 'Privacy Policy', icon: <FaLock /> },
     { path: '/refund', label: 'Refund Policy', icon: <FaMoneyBillWave /> },
-    { path: '/contact', label: 'Contact Us', icon: <FaEnvelope /> },
+    // { path: '/contact', label: 'Contact Us', icon: <FaEnvelope /> },
   ];
 
   return (
@@ -29,13 +29,13 @@ const PolicyLayout = ({ children }) => {
             {path === '/terms' && 'Terms & Conditions'}
             {path === '/privacy' && 'Privacy Policy'}
             {path === '/refund' && 'Refund Policy'}
-            {path === '/contact' && 'Contact Us'}
+            {/* {path === '/contact' && 'Contact Us'} */}
           </h1>
           <p className="text-white/80 mt-2 max-w-2xl">
             {path === '/terms' && 'Please read these terms carefully before using our service'}
             {path === '/privacy' && 'How we collect, use, and protect your information'}
             {path === '/refund' && 'Our cancellation and refund guidelines'}
-            {path === '/contact' && 'We\'d love to hear from you. Get in touch!'}
+            {/* {path === '/contact' && 'We\'d love to hear from you. Get in touch!'} */}
           </p>
         </div>
       </div>

@@ -1,3 +1,4 @@
+// code for razorpay
 // updated code for location
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -257,7 +258,7 @@ const CheckoutPage = () => {
         return true;
     };
 
-    // ✅ STEP 7: Updated handlePlaceOrder with delivery check
+    // ✅ STEP 7: Delivery check + ✅ STEP 9: Payment redirect
     const handlePlaceOrder = async () => {
         // Validate address
         if (!validateSelectedAddress()) {
@@ -286,6 +287,7 @@ const CheckoutPage = () => {
         try {
             setLoading(true);
 
+            // Prepare order data
             const orderData = {
                 shippingAddress: {
                     fullName: user?.name || 'Customer',
@@ -296,7 +298,6 @@ const CheckoutPage = () => {
                     pincode: selectedAddress.pincode,
                     type: selectedAddress.type || 'home'
                 },
-                paymentMethod,
                 itemsPrice: subtotal,
                 deliveryPrice: deliveryCharge,
                 totalPrice: total,
@@ -305,13 +306,32 @@ const CheckoutPage = () => {
 
             console.log('📦 Order Data:', orderData);
 
-            const result = await dispatch(createOrder(orderData));
-            
-            if (result && result._id) {
-                if (result.whatsappUrl) {
-                    window.open(result.whatsappUrl, '_blank');
+            // ✅ STEP 9: Payment Method based navigation
+            if (paymentMethod === 'COD') {
+                // COD Order - Place directly
+                const result = await dispatch(createOrder({
+                    ...orderData,
+                    paymentMethod: 'COD'
+                }));
+                
+                if (result && result._id) {
+                    if (result.whatsappUrl) {
+                        window.open(result.whatsappUrl, '_blank');
+                    }
+                    navigate(`/order-success/${result._id}`);
                 }
-                navigate(`/order-success/${result._id}`);
+            } else {
+                // Online Payment - Save address in sessionStorage and go to payment page
+                sessionStorage.setItem('checkoutAddress', JSON.stringify(orderData.shippingAddress));
+                sessionStorage.setItem('checkoutOrderData', JSON.stringify({
+                    itemsPrice: subtotal,
+                    deliveryPrice: deliveryCharge,
+                    totalPrice: total,
+                    paymentMethod
+                }));
+                
+                // Navigate to payment page
+                navigate('/payment');
             }
             
         } catch (error) {
@@ -803,7 +823,7 @@ const CheckoutPage = () => {
                                     }
                                 `}
                             >
-                                {loading ? 'Placing Order...' : 'Place Order • ₹' + total}
+                                {loading ? 'Placing Order...' : `Place Order • ₹${total}`}
                             </button>
 
                             {/* Security Note */}
@@ -827,13 +847,7 @@ export default CheckoutPage;
 
 
 
-
-
-
-
-
-
-
+// // updated code for location
 // import React, { useState, useEffect } from 'react';
 // import { useSelector, useDispatch } from 'react-redux';
 // import { useNavigate } from 'react-router-dom';
@@ -851,15 +865,17 @@ export default CheckoutPage;
 // import { createOrder } from '../redux/actions/orderActions';
 // import { loadCart } from '../redux/actions/cartActions';
 // import addressService from '../services/addressService';
-// import useDeliveryCheck from '../hooks/useDeliveryCheck';
+// import useDeliveryCheck from '../hooks/useDeliveryCheck'; // ✅ Import hook
 
 // const CheckoutPage = () => {
 //     const dispatch = useDispatch();
 //     const navigate = useNavigate();
     
-//     // ✅ Redux state se cart items le rahe hain
 //     const { cartItems, totalPrice, loading: cartLoading } = useSelector((state) => state.cart);
 //     const { user } = useSelector((state) => state.auth);
+
+//     // ✅ Get delivery status from hook
+//     const { deliveryStatus } = useDeliveryCheck();
 
 //     // States
 //     const [step, setStep] = useState(1);
@@ -868,7 +884,7 @@ export default CheckoutPage;
 //     const [paymentMethod, setPaymentMethod] = useState('COD');
 //     const [loading, setLoading] = useState(false);
 //     const [showAddressForm, setShowAddressForm] = useState(false);
-//     const [editingAddress, setEditingAddress] = useState(null); // ✅ Edit mode ke liye
+//     const [editingAddress, setEditingAddress] = useState(null);
 //     const [formErrors, setFormErrors] = useState({});
 
 //     // New address form
@@ -881,7 +897,7 @@ export default CheckoutPage;
 //         isDefault: false
 //     });
 
-//     // ✅ Calculate totals from cartItems
+//     // Calculate totals
 //     const calculateTotals = () => {
 //         const items = cartItems || [];
 //         const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -899,34 +915,32 @@ export default CheckoutPage;
 //     }, []);
 
 //     useEffect(() => {
-//     // Debug selected address
-//     console.log('Selected address changed:', selectedAddress);
-// }, [selectedAddress]);
+//         console.log('Selected address changed:', selectedAddress);
+//     }, [selectedAddress]);
 
 //     const fetchAddresses = async () => {
-//     try {
-//         const response = await addressService.getAddresses();
-//         console.log('Fetched addresses:', response.data.data);
-        
-//         // ✅ Debug: Check each address's fields
-//         response.data.data.forEach((addr, index) => {
-//             console.log(`Address ${index}:`, {
-//                 id: addr._id,
-//                 type: addr.type,
-//                 address: addr.address,
-//                 city: addr.city,
-//                 pincode: addr.pincode,
-//                 landmark: addr.landmark,
-//                 isDefault: addr.isDefault
+//         try {
+//             const response = await addressService.getAddresses();
+//             console.log('Fetched addresses:', response.data.data);
+            
+//             response.data.data.forEach((addr, index) => {
+//                 console.log(`Address ${index}:`, {
+//                     id: addr._id,
+//                     type: addr.type,
+//                     address: addr.address,
+//                     city: addr.city,
+//                     pincode: addr.pincode,
+//                     landmark: addr.landmark,
+//                     isDefault: addr.isDefault
+//                 });
 //             });
-//         });
-        
-//         setAddresses(response.data.data);
-//         setSelectedAddress(null);
-//     } catch (error) {
-//         console.error('Error fetching addresses:', error);
-//     }
-// };
+            
+//             setAddresses(response.data.data);
+//             setSelectedAddress(null);
+//         } catch (error) {
+//             console.error('Error fetching addresses:', error);
+//         }
+//     };
 
 //     // Handle address selection
 //     const handleAddressSelect = (address) => {
@@ -957,11 +971,9 @@ export default CheckoutPage;
 //             setLoading(true);
 //             await addressService.deleteAddress(addressId);
             
-//             // Remove from list
 //             const updatedAddresses = addresses.filter(addr => addr._id !== addressId);
 //             setAddresses(updatedAddresses);
             
-//             // If selected address was deleted, clear selection
 //             if (selectedAddress?._id === addressId) {
 //                 setSelectedAddress(null);
 //             }
@@ -1005,51 +1017,45 @@ export default CheckoutPage;
 //     };
 
 //     // Add or update address
-//     // Add or update address
-// const handleSaveAddress = async (e) => {
-//     e.preventDefault();
+//     const handleSaveAddress = async (e) => {
+//         e.preventDefault();
 
-//     const errors = validateAddressForm();
-//     if (Object.keys(errors).length > 0) {
-//         setFormErrors(errors);
-//         return;
-//     }
-
-//     try {
-//         setLoading(true);
-        
-//         let response;
-//         if (editingAddress) {
-//             // Update existing address
-//             console.log('Updating address:', editingAddress._id, newAddress);
-//             response = await addressService.updateAddress(editingAddress._id, newAddress);
-//         } else {
-//             // Add new address
-//             console.log('Adding new address:', newAddress);
-//             response = await addressService.addAddress(newAddress);
+//         const errors = validateAddressForm();
+//         if (Object.keys(errors).length > 0) {
+//             setFormErrors(errors);
+//             return;
 //         }
 
-//         console.log('Address save response:', response.data);
+//         try {
+//             setLoading(true);
+            
+//             let response;
+//             if (editingAddress) {
+//                 console.log('Updating address:', editingAddress._id, newAddress);
+//                 response = await addressService.updateAddress(editingAddress._id, newAddress);
+//             } else {
+//                 console.log('Adding new address:', newAddress);
+//                 response = await addressService.addAddress(newAddress);
+//             }
 
-//         // Refresh addresses list
-//         await fetchAddresses();
-        
-//         // Select the saved/updated address
-//         if (response.data && response.data.data) {
-//             setSelectedAddress(response.data.data);
+//             console.log('Address save response:', response.data);
+
+//             await fetchAddresses();
+            
+//             if (response.data && response.data.data) {
+//                 setSelectedAddress(response.data.data);
+//             }
+            
+//             resetAddressForm();
+            
+//         } catch (error) {
+//             console.error('Error saving address:', error);
+//             console.error('Error response:', error.response?.data);
+//             alert(error.response?.data?.message || 'Failed to save address. Please try again.');
+//         } finally {
+//             setLoading(false);
 //         }
-        
-//         // Reset form
-//         resetAddressForm();
-        
-//     } catch (error) {
-//         console.error('Error saving address:', error);
-//         console.error('Error response:', error.response?.data);
-//         alert(error.response?.data?.message || 'Failed to save address. Please try again.');
-//     } finally {
-//         setLoading(false);
-//     }
-// };
+//     };
 
 //     // Reset address form
 //     const resetAddressForm = () => {
@@ -1071,93 +1077,99 @@ export default CheckoutPage;
 //         resetAddressForm();
 //     };
 
-    
-// const validateSelectedAddress = () => {
-//     if (!selectedAddress) {
-//         alert('Please select a delivery address');
-//         return false;
-//     }
-
-//     console.log('Validating selected address:', selectedAddress);
-
-//     // Check all required fields
-//     const requiredFields = {
-//         address: 'Address',
-//         city: 'City',
-//         pincode: 'Pincode'
-//     };
-
-//     for (const [field, label] of Object.entries(requiredFields)) {
-//         if (!selectedAddress[field] || selectedAddress[field].trim() === '') {
-//             alert(`Selected address is missing ${label}. Please choose another address or edit this one.`);
+//     const validateSelectedAddress = () => {
+//         if (!selectedAddress) {
+//             alert('Please select a delivery address');
 //             return false;
 //         }
-//     }
 
-//     // Validate pincode format
-//     if (!/^\d{6}$/.test(selectedAddress.pincode)) {
-//         alert('Invalid pincode format in selected address. Please use a 6-digit pincode.');
-//         return false;
-//     }
+//         console.log('Validating selected address:', selectedAddress);
 
-//     return true;
-// };
+//         const requiredFields = {
+//             address: 'Address',
+//             city: 'City',
+//             pincode: 'Pincode'
+//         };
 
-   
+//         for (const [field, label] of Object.entries(requiredFields)) {
+//             if (!selectedAddress[field] || selectedAddress[field].trim() === '') {
+//                 alert(`Selected address is missing ${label}. Please choose another address or edit this one.`);
+//                 return false;
+//             }
+//         }
 
+//         if (!/^\d{6}$/.test(selectedAddress.pincode)) {
+//             alert('Invalid pincode format in selected address. Please use a 6-digit pincode.');
+//             return false;
+//         }
 
-
-//   // handlePlaceOrder function में changes
-// const handlePlaceOrder = async () => {
-//   if (!selectedAddress) {
-//     alert('Please select a delivery address');
-//     return;
-//   }
-
-//   try {
-//     setLoading(true);
-
-//     const orderData = {
-//       shippingAddress: {
-//         fullName: user?.name || 'Customer',
-//         phone: user?.phone || '',
-//         address: selectedAddress.address,
-//         landmark: selectedAddress.landmark || '',
-//         city: selectedAddress.city,
-//         pincode: selectedAddress.pincode,
-//         type: selectedAddress.type || 'home'
-//       },
-//       paymentMethod,
-//       itemsPrice: subtotal,
-//       deliveryPrice: deliveryCharge,
-//       totalPrice: total,
-//       notes: ''
+//         return true;
 //     };
 
-//     console.log('📦 Order Data:', orderData);
+//     // ✅ STEP 7: Updated handlePlaceOrder with delivery check
+//     const handlePlaceOrder = async () => {
+//         // Validate address
+//         if (!validateSelectedAddress()) {
+//             return;
+//         }
 
-//     const result = await dispatch(createOrder(orderData));
-    
-//     if (result && result._id) {
-//       // ✅ WhatsApp notification open करो
-//       if (result.whatsappUrl) {
-//         window.open(result.whatsappUrl, '_blank');
-//       }
-      
-//       // Success page पर जाओ
-//       navigate(`/order-success/${result._id}`);
-//     }
-    
-//   } catch (error) {
-//     console.error('❌ Order error:', error);
-//     alert(error.response?.data?.message || 'Failed to place order. Please try again.');
-//   } finally {
-//     setLoading(false);
-//   }
-// };
+//         // ✅ Check delivery availability
+//         if (deliveryStatus.isDeliverable === false) {
+//             const errorMsg = `Delivery not available in your area. We currently deliver within ${deliveryStatus.maxDistance || 10}km radius.`;
+//             alert(errorMsg);
+//             return;
+//         }
 
+//         // Show warning if delivery check is still loading
+//         if (deliveryStatus.loading) {
+//             alert('Please wait while we check delivery availability for your location.');
+//             return;
+//         }
 
+//         // Show warning if location not detected
+//         if (deliveryStatus.isDeliverable === null) {
+//             alert('Please allow location access or select your location to check delivery availability.');
+//             return;
+//         }
 
+//         try {
+//             setLoading(true);
+
+//             const orderData = {
+//                 shippingAddress: {
+//                     fullName: user?.name || 'Customer',
+//                     phone: user?.phone || '',
+//                     address: selectedAddress.address,
+//                     landmark: selectedAddress.landmark || '',
+//                     city: selectedAddress.city,
+//                     pincode: selectedAddress.pincode,
+//                     type: selectedAddress.type || 'home'
+//                 },
+//                 paymentMethod,
+//                 itemsPrice: subtotal,
+//                 deliveryPrice: deliveryCharge,
+//                 totalPrice: total,
+//                 notes: ''
+//             };
+
+//             console.log('📦 Order Data:', orderData);
+
+//             const result = await dispatch(createOrder(orderData));
+            
+//             if (result && result._id) {
+//                 if (result.whatsappUrl) {
+//                     window.open(result.whatsappUrl, '_blank');
+//                 }
+//                 navigate(`/order-success/${result._id}`);
+//             }
+            
+//         } catch (error) {
+//             console.error('❌ Order error:', error);
+//             alert(error.response?.data?.message || 'Failed to place order. Please try again.');
+//         } finally {
+//             setLoading(false);
+//         }
+//     };
 
 //     // Address Type Icon
 //     const getAddressIcon = (type) => {
@@ -1184,6 +1196,13 @@ export default CheckoutPage;
 //                         Checkout
 //                     </h1>
 //                 </div>
+
+//                 {/* Delivery Status Banner (Optional) */}
+//                 {deliveryStatus.isDeliverable === false && (
+//                     <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+//                         ⚠️ Delivery not available in your area. Maximum delivery radius is {deliveryStatus.maxDistance || 10}km.
+//                     </div>
+//                 )}
 
 //                 {/* Progress Steps */}
 //                 <div className="flex justify-between mb-6 sm:mb-8 px-2">
@@ -1231,85 +1250,84 @@ export default CheckoutPage;
 //                             </div>
 
 //                             {/* Address List */}
-//                             {/* Address List */}
-// {addresses.length > 0 ? (
-//     <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-//         {addresses.map((addr) => (
-//             <div
-//                 key={addr._id}
-//                 className={`
-//                     border rounded-xl p-3 sm:p-4 transition-all
-//                     ${selectedAddress?._id === addr._id
-//                         ? 'border-red-500 bg-red-50 shadow-md'
-//                         : 'border-gray-200'
-//                     }
-//                 `}
-//             >
-//                 <div className="flex items-start gap-3">
-//                     <div 
-//                         className="flex-1 cursor-pointer"
-//                         onClick={() => handleAddressSelect(addr)}
-//                     >
-//                         <div className="flex items-start gap-3">
-//                             <div className="text-2xl">
-//                                 {getAddressIcon(addr.type)}
-//                             </div>
-//                             <div className="flex-1">
-//                                 <div className="flex items-center gap-2 mb-1">
-//                                     <span className="font-semibold text-gray-800 text-sm sm:text-base capitalize">
-//                                         {addr.type}
-//                                     </span>
-//                                     {addr.isDefault && (
-//                                         <span className="bg-green-100 text-green-600 text-xs px-2 py-0.5 rounded-full">
-//                                             Default
-//                                         </span>
-//                                     )}
+//                             {addresses.length > 0 ? (
+//                                 <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+//                                     {addresses.map((addr) => (
+//                                         <div
+//                                             key={addr._id}
+//                                             className={`
+//                                                 border rounded-xl p-3 sm:p-4 transition-all
+//                                                 ${selectedAddress?._id === addr._id
+//                                                     ? 'border-red-500 bg-red-50 shadow-md'
+//                                                     : 'border-gray-200'
+//                                                 }
+//                                             `}
+//                                         >
+//                                             <div className="flex items-start gap-3">
+//                                                 <div 
+//                                                     className="flex-1 cursor-pointer"
+//                                                     onClick={() => handleAddressSelect(addr)}
+//                                                 >
+//                                                     <div className="flex items-start gap-3">
+//                                                         <div className="text-2xl">
+//                                                             {getAddressIcon(addr.type)}
+//                                                         </div>
+//                                                         <div className="flex-1">
+//                                                             <div className="flex items-center gap-2 mb-1">
+//                                                                 <span className="font-semibold text-gray-800 text-sm sm:text-base capitalize">
+//                                                                     {addr.type}
+//                                                                 </span>
+//                                                                 {addr.isDefault && (
+//                                                                     <span className="bg-green-100 text-green-600 text-xs px-2 py-0.5 rounded-full">
+//                                                                         Default
+//                                                                     </span>
+//                                                                 )}
+//                                                             </div>
+//                                                             <p className="text-xs sm:text-sm text-gray-600 mb-1">
+//                                                                 {addr.address}
+//                                                             </p>
+//                                                             {addr.landmark && (
+//                                                                 <p className="text-xs text-gray-500">
+//                                                                     Landmark: {addr.landmark}
+//                                                                 </p>
+//                                                             )}
+//                                                             <p className="text-xs text-gray-500">
+//                                                                 {addr.city} - {addr.pincode}
+//                                                             </p>
+//                                                         </div>
+//                                                     </div>
+//                                                 </div>
+                                                
+//                                                 {/* Action Buttons */}
+//                                                 <div className="flex gap-1">
+//                                                     <button
+//                                                         onClick={() => handleEditAddress(addr)}
+//                                                         className="p-2 hover:bg-blue-50 rounded-lg text-blue-500 transition"
+//                                                         title="Edit address"
+//                                                     >
+//                                                         <FaEdit />
+//                                                     </button>
+//                                                     <button
+//                                                         onClick={() => handleDeleteAddress(addr._id)}
+//                                                         className="p-2 hover:bg-red-50 rounded-lg text-red-500 transition"
+//                                                         title="Delete address"
+//                                                     >
+//                                                         <FaTrash />
+//                                                     </button>
+//                                                     {selectedAddress?._id === addr._id && (
+//                                                         <FaCheck className="text-red-500 text-lg shrink-0 ml-2" />
+//                                                     )}
+//                                                 </div>
+//                                             </div>
+//                                         </div>
+//                                     ))}
 //                                 </div>
-//                                 <p className="text-xs sm:text-sm text-gray-600 mb-1">
-//                                     {addr.address}
-//                                 </p>
-//                                 {addr.landmark && (
-//                                     <p className="text-xs text-gray-500">
-//                                         Landmark: {addr.landmark}
-//                                     </p>
-//                                 )}
-//                                 <p className="text-xs text-gray-500">
-//                                     {addr.city} - {addr.pincode}
-//                                 </p>
-//                             </div>
-//                         </div>
-//                     </div>
-                    
-//                     {/* Action Buttons */}
-//                     <div className="flex gap-1">
-//                         <button
-//                             onClick={() => handleEditAddress(addr)}
-//                             className="p-2 hover:bg-blue-50 rounded-lg text-blue-500 transition"
-//                             title="Edit address"
-//                         >
-//                             <FaEdit />
-//                         </button>
-//                         <button
-//                             onClick={() => handleDeleteAddress(addr._id)}
-//                             className="p-2 hover:bg-red-50 rounded-lg text-red-500 transition"
-//                             title="Delete address"
-//                         >
-//                             <FaTrash />
-//                         </button>
-//                         {selectedAddress?._id === addr._id && (
-//                             <FaCheck className="text-red-500 text-lg flex-shrink-0 ml-2" />
-//                         )}
-//                     </div>
-//                 </div>
-//             </div>
-//         ))}
-//     </div>
-// ) : (
-//     <div className="text-center py-8 bg-gray-50 rounded-lg">
-//         <p className="text-gray-500">No saved addresses yet</p>
-//         <p className="text-sm text-gray-400 mt-1">Add your first delivery address</p>
-//     </div>
-// )}
+//                             ) : (
+//                                 <div className="text-center py-8 bg-gray-50 rounded-lg">
+//                                     <p className="text-gray-500">No saved addresses yet</p>
+//                                     <p className="text-sm text-gray-400 mt-1">Add your first delivery address</p>
+//                                 </div>
+//                             )}
 
 //                             {/* Add/Edit Address Form */}
 //                             {showAddressForm && (

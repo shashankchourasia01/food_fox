@@ -31,6 +31,10 @@ import RefundPage from './pages/policy/RefundPage';
 // import ContactPage from './pages/policy/ContactPage';
 import PolicyLayout from './pages/PolicyLayout';
 
+//razorpay imports
+import PaymentPage from './pages/PaymentPage';
+import PaymentSuccessPage from './pages/PaymentSuccessPage';
+
 // Admin Layout Component (defined outside App)
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -90,6 +94,9 @@ const AppContent = () => {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
           <Route path="/my-orders" element={<MyOrdersPage />} />
+
+          <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/payment-success/:orderId" element={<PaymentSuccessPage />} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={
