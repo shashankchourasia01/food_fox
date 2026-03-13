@@ -22,19 +22,24 @@ const useDeliveryCheck = () => {
   }, []);
 
   const checkDelivery = useCallback(async (lat, lng) => {
+    // Agar coordinates नहीं हैं तो loading false करो
     if (!lat || !lng) {
+      console.log('📍 No coordinates provided to checkDelivery');
       setDeliveryStatus(prev => ({
         ...prev,
+        loading: false,
         isDeliverable: null,
-        loading: false
+        error: 'No location coordinates'
       }));
       return;
     }
 
+    console.log(`📍 Checking delivery for coordinates: ${lat}, ${lng}`);
     setDeliveryStatus(prev => ({ ...prev, loading: true, error: null }));
 
     try {
       const response = await axios.post(`${API_URL}/delivery/check`, { lat, lng });
+      console.log('✅ Delivery check response:', response.data);
       
       setDeliveryStatus({
         ...response.data.data,
@@ -49,7 +54,7 @@ const useDeliveryCheck = () => {
       }, 5000);
 
     } catch (error) {
-      console.error('Delivery check error:', error);
+      console.error('❌ Delivery check error:', error);
       setDeliveryStatus({
         isDeliverable: null,
         distance: null,

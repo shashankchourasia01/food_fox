@@ -18,6 +18,7 @@ import { createOrder } from '../redux/actions/orderActions';
 import { loadCart } from '../redux/actions/cartActions';
 import addressService from '../services/addressService';
 import useDeliveryCheck from '../hooks/useDeliveryCheck'; // ✅ Import hook
+import useGeolocation from '../hooks/useGeolocation';
 
 const CheckoutPage = () => {
     const dispatch = useDispatch();
@@ -27,7 +28,9 @@ const CheckoutPage = () => {
     const { user } = useSelector((state) => state.auth);
 
     // ✅ Get delivery status from hook
-    const { deliveryStatus } = useDeliveryCheck();
+    // const { deliveryStatus } = useDeliveryCheck();
+    const { location } = useGeolocation();
+    const { deliveryStatus, checkDelivery } = useDeliveryCheck();
 
     // States
     const [step, setStep] = useState(1);
@@ -69,6 +72,20 @@ const CheckoutPage = () => {
     useEffect(() => {
         console.log('Selected address changed:', selectedAddress);
     }, [selectedAddress]);
+
+    useEffect(() => {
+    console.log('📍 Current deliveryStatus:', deliveryStatus);
+    console.log('📍 isDeliverable:', deliveryStatus.isDeliverable);
+    console.log('📍 Coordinates from user:', location.coordinates);
+}, [deliveryStatus]);
+
+
+    // Call checkDelivery when coordinates change
+useEffect(() => {
+    if (location.coordinates) {
+        checkDelivery(location.coordinates.latitude, location.coordinates.longitude);
+    }
+}, [location.coordinates, checkDelivery]);
 
     const fetchAddresses = async () => {
         try {
@@ -260,29 +277,35 @@ const CheckoutPage = () => {
 
     // ✅ STEP 7: Delivery check + ✅ STEP 9: Payment redirect
     const handlePlaceOrder = async () => {
-        // Validate address
-        if (!validateSelectedAddress()) {
-            return;
-        }
+    // Validate address
+    if (!validateSelectedAddress()) {
+        return;
+    }
 
-        // ✅ Check delivery availability
-        if (deliveryStatus.isDeliverable === false) {
-            const errorMsg = `Delivery not available in your area. We currently deliver within ${deliveryStatus.maxDistance || 10}km radius.`;
-            alert(errorMsg);
-            return;
-        }
+    // ✅ Check if delivery status is still loading
+    if (deliveryStatus.loading) {
+        alert('Please wait while we check delivery availability for your location.');
+        return;
+    }
 
-        // Show warning if delivery check is still loading
-        if (deliveryStatus.loading) {
-            alert('Please wait while we check delivery availability for your location.');
-            return;
-        }
+    // ✅ Check if delivery check failed
+    if (deliveryStatus.error) {
+        alert('Unable to verify delivery availability. Please try again or contact support.');
+        return;
+    }
 
-        // Show warning if location not detected
-        if (deliveryStatus.isDeliverable === null) {
-            alert('Please allow location access or select your location to check delivery availability.');
-            return;
-        }
+    // ✅ Check delivery availability
+    if (deliveryStatus.isDeliverable === false) {
+        const errorMsg = `Delivery not available in your area. We currently deliver within ${deliveryStatus.maxDistance || 10}km radius.`;
+        alert(errorMsg);
+        return;
+    }
+
+    // ✅ Check if location not detected
+    if (deliveryStatus.isDeliverable === null) {
+        alert('Please allow location access or select your location to check delivery availability.');
+        return;
+    }
 
         try {
             setLoading(true);

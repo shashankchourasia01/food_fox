@@ -30,11 +30,21 @@ const Navbar = () => {
   const popupRef = useRef(null);
 
   // Check delivery when coordinates change
+  // useEffect(() => {
+  //   if (location.coordinates) {
+  //     checkDelivery(location.coordinates.latitude, location.coordinates.longitude);
+  //   }
+  // }, [location.coordinates, checkDelivery]);
+
   useEffect(() => {
     if (location.coordinates) {
-      checkDelivery(location.coordinates.latitude, location.coordinates.longitude);
+        console.log('📍 Navbar: Got coordinates, checking delivery...');
+        checkDelivery(location.coordinates.latitude, location.coordinates.longitude);
+    } else {
+        console.log('📍 Navbar: No coordinates yet');
+        // Optionally, you can show a message to user
     }
-  }, [location.coordinates, checkDelivery]);
+}, [location.coordinates, checkDelivery]);
 
   // Handle scroll effect
   useEffect(() => {
