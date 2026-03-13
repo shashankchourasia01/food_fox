@@ -28,7 +28,7 @@ import { LOGIN_SUCCESS } from './redux/constants/authConstants';
 import TermsPage from './pages/policy/TermsPage';
 import PrivacyPage from './pages/policy/PrivacyPage';
 import RefundPage from './pages/policy/RefundPage';
-import ContactPage from './pages/policy/ContactPage';
+// import ContactPage from './pages/policy/ContactPage';
 import PolicyLayout from './pages/PolicyLayout';
 
 // Admin Layout Component (defined outside App)
@@ -129,11 +129,11 @@ const AppContent = () => {
               <RefundPage />
             </PolicyLayout>
           } />
-          <Route path="/contact" element={
+          {/* <Route path="/contact" element={
             <PolicyLayout>
               <ContactPage />
             </PolicyLayout>
-          } />
+          } /> */}
 
         </Routes>
       </main>
