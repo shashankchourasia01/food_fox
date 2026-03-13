@@ -17,7 +17,7 @@ import {
 import { createOrder } from '../redux/actions/orderActions';
 import { loadCart } from '../redux/actions/cartActions';
 import addressService from '../services/addressService';
-import useDeliveryCheck from '../hooks/useDeliveryCheck'; // ✅ Import hook
+import useDeliveryCheck from '../hooks/useDeliveryCheck';
 import useGeolocation from '../hooks/useGeolocation';
 
 const CheckoutPage = () => {
@@ -27,8 +27,7 @@ const CheckoutPage = () => {
     const { cartItems, totalPrice, loading: cartLoading } = useSelector((state) => state.cart);
     const { user } = useSelector((state) => state.auth);
 
-    // ✅ Get delivery status from hook
-    // const { deliveryStatus } = useDeliveryCheck();
+    // Get location and delivery status
     const { location } = useGeolocation();
     const { deliveryStatus, checkDelivery } = useDeliveryCheck();
 
@@ -69,23 +68,23 @@ const CheckoutPage = () => {
         fetchAddresses();
     }, []);
 
+    // Debug logs
     useEffect(() => {
         console.log('Selected address changed:', selectedAddress);
     }, [selectedAddress]);
 
     useEffect(() => {
-    console.log('📍 Current deliveryStatus:', deliveryStatus);
-    console.log('📍 isDeliverable:', deliveryStatus.isDeliverable);
-    console.log('📍 Coordinates from user:', location.coordinates);
-}, [deliveryStatus]);
-
+        console.log('📍 Current deliveryStatus:', deliveryStatus);
+        console.log('📍 isDeliverable:', deliveryStatus.isDeliverable);
+        console.log('📍 Coordinates from user:', location.coordinates);
+    }, [deliveryStatus, location.coordinates]);
 
     // Call checkDelivery when coordinates change
-useEffect(() => {
-    if (location.coordinates) {
-        checkDelivery(location.coordinates.latitude, location.coordinates.longitude);
-    }
-}, [location.coordinates, checkDelivery]);
+    useEffect(() => {
+        if (location.coordinates) {
+            checkDelivery(location.coordinates.latitude, location.coordinates.longitude);
+        }
+    }, [location.coordinates, checkDelivery]);
 
     const fetchAddresses = async () => {
         try {
@@ -275,37 +274,37 @@ useEffect(() => {
         return true;
     };
 
-    // ✅ STEP 7: Delivery check + ✅ STEP 9: Payment redirect
+    // STEP 7: Delivery check + STEP 9: Payment redirect
     const handlePlaceOrder = async () => {
-    // Validate address
-    if (!validateSelectedAddress()) {
-        return;
-    }
+        // Validate address
+        if (!validateSelectedAddress()) {
+            return;
+        }
 
-    // ✅ Check if delivery status is still loading
-    if (deliveryStatus.loading) {
-        alert('Please wait while we check delivery availability for your location.');
-        return;
-    }
+        // Check if delivery status is still loading
+        if (deliveryStatus.loading) {
+            alert('Please wait while we check delivery availability for your location.');
+            return;
+        }
 
-    // ✅ Check if delivery check failed
-    if (deliveryStatus.error) {
-        alert('Unable to verify delivery availability. Please try again or contact support.');
-        return;
-    }
+        // Check if delivery check failed
+        if (deliveryStatus.error) {
+            alert('Unable to verify delivery availability. Please try again or contact support.');
+            return;
+        }
 
-    // ✅ Check delivery availability
-    if (deliveryStatus.isDeliverable === false) {
-        const errorMsg = `Delivery not available in your area. We currently deliver within ${deliveryStatus.maxDistance || 10}km radius.`;
-        alert(errorMsg);
-        return;
-    }
+        // Check delivery availability
+        if (deliveryStatus.isDeliverable === false) {
+            const errorMsg = `Delivery not available in your area. We currently deliver within ${deliveryStatus.maxDistance || 10}km radius.`;
+            alert(errorMsg);
+            return;
+        }
 
-    // ✅ Check if location not detected
-    if (deliveryStatus.isDeliverable === null) {
-        alert('Please allow location access or select your location to check delivery availability.');
-        return;
-    }
+        // Check if location not detected
+        if (deliveryStatus.isDeliverable === null) {
+            alert('Please allow location access or select your location to check delivery availability.');
+            return;
+        }
 
         try {
             setLoading(true);
@@ -329,7 +328,7 @@ useEffect(() => {
 
             console.log('📦 Order Data:', orderData);
 
-            // ✅ STEP 9: Payment Method based navigation
+            // STEP 9: Payment Method based navigation
             if (paymentMethod === 'COD') {
                 // COD Order - Place directly
                 const result = await dispatch(createOrder({

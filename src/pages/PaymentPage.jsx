@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { FaCreditCard, FaLock, FaRupeeSign } from 'react-icons/fa';
@@ -7,63 +7,101 @@ import paymentService from '../services/paymentService';
 const PaymentPage = () => {
     const navigate = useNavigate();
     const { user } = useSelector((state) => state.auth);
-    const { cartItems, totalPrice } = useSelector((state) => state.cart);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [scriptLoaded, setScriptLoaded] = useState(false);
 
-    // Load Razorpay script
-    const loadRazorpayScript = () => {
-        return new Promise((resolve) => {
-            const script = document.createElement('script');
-            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-            script.onload = () => resolve(true);
-            script.onerror = () => resolve(false);
-            document.body.appendChild(script);
-        });
-    };
+    // Get order data from sessionStorage
+    const checkoutAddress = JSON.parse(sessionStorage.getItem('checkoutAddress') || '{}');
+    const checkoutOrderData = JSON.parse(sessionStorage.getItem('checkoutOrderData') || '{}');
+    const { totalPrice } = useSelector((state) => state.cart);
 
-    // Handle payment
+    // Amount to pay (use sessionStorage total or cart total)
+    const amountToPay = checkoutOrderData.totalPrice || totalPrice || 0;
+
+    // ✅ Load Razorpay script on component mount
+    useEffect(() => {
+        const loadRazorpayScript = () => {
+            return new Promise((resolve) => {
+                // Check if script already loaded
+                if (document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]')) {
+                    console.log('✅ Razorpay script already loaded');
+                    setScriptLoaded(true);
+                    resolve(true);
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+                script.onload = () => {
+                    console.log('✅ Razorpay script loaded successfully');
+                    setScriptLoaded(true);
+                    resolve(true);
+                };
+                script.onerror = () => {
+                    console.error('❌ Failed to load Razorpay script');
+                    setError('Failed to load payment gateway. Please try again.');
+                    setScriptLoaded(false);
+                    resolve(false);
+                };
+                document.body.appendChild(script);
+            });
+        };
+
+        loadRazorpayScript();
+    }, []);
+
+    // ✅ Handle payment
     const handlePayment = async () => {
+        if (amountToPay < 1) {
+            setError('Invalid amount. Please refresh and try again.');
+            return;
+        }
+
         setLoading(true);
         setError('');
 
         try {
-            // Load Razorpay script [citation:4]
-            const scriptLoaded = await loadRazorpayScript();
-            if (!scriptLoaded) {
-                setError('Failed to load payment gateway. Please try again.');
+            // Check if script loaded
+            if (!scriptLoaded || typeof window.Razorpay === 'undefined') {
+                setError('Payment gateway not initialized. Please refresh the page.');
                 setLoading(false);
                 return;
             }
 
-            // Create order on backend [citation:8]
-            const orderResponse = await paymentService.createOrder(totalPrice);
+            // Create order on backend
+            console.log('💰 Creating Razorpay order for amount:', amountToPay);
+            const orderResponse = await paymentService.createOrder(amountToPay);
+            console.log('✅ Order response:', orderResponse.data);
+
             const { data: order, keyId } = orderResponse.data;
 
-            // Prepare Razorpay options [citation:4]
+            // ✅ FIX: Amount should be in paise (already done in backend)
+            console.log('💰 Order amount in paise:', order.amount);
+
+            // Prepare Razorpay options
             const options = {
                 key: keyId,
-                amount: order.amount,
-                currency: order.currency,
+                amount: order.amount,  // Already in paise from backend
+                currency: order.currency || 'INR',
                 name: 'FlavorFix',
                 description: 'Food Order Payment',
                 image: '/logo.png',
                 order_id: order.id,
                 handler: async (response) => {
-                    // Payment successful [citation:4]
-                    console.log('Payment success:', response);
+                    console.log('✅ Payment success:', response);
                     
                     try {
-                        // Get order data from checkout (you can pass via state)
+                        // Get order data from session
                         const orderData = {
-                            items: cartItems,
-                            itemsPrice: totalPrice,
-                            deliveryPrice: totalPrice > 500 ? 0 : 40,
-                            totalPrice: totalPrice + (totalPrice > 500 ? 0 : 40),
-                            shippingAddress: JSON.parse(sessionStorage.getItem('checkoutAddress'))
+                            items: [], // You need to pass cart items here
+                            itemsPrice: amountToPay - (amountToPay > 500 ? 0 : 40),
+                            deliveryPrice: amountToPay > 500 ? 0 : 40,
+                            totalPrice: amountToPay,
+                            shippingAddress: checkoutAddress
                         };
 
-                        // Verify payment and create order [citation:3]
+                        // Verify payment and create order
                         const verifyResponse = await paymentService.verifyPayment({
                             razorpay_order_id: response.razorpay_order_id,
                             razorpay_payment_id: response.razorpay_payment_id,
@@ -71,19 +109,25 @@ const PaymentPage = () => {
                             orderData
                         });
 
+                        // Clear session storage
+                        sessionStorage.removeItem('checkoutAddress');
+                        sessionStorage.removeItem('checkoutOrderData');
+
                         // Redirect to success page
                         navigate(`/order-success/${verifyResponse.data.orderId}`);
                         
                     } catch (error) {
-                        console.error('Order creation error:', error);
+                        console.error('❌ Order creation error:', error);
                         setError('Payment successful but order creation failed. Contact support.');
                     }
                 },
                 modal: {
                     ondismiss: () => {
+                        console.log('⚠️ Payment modal dismissed');
                         setLoading(false);
-                        console.log('Payment modal closed');
-                    }
+                    },
+                    confirm_close: true,  // Ask confirmation before closing
+                    animation: true
                 },
                 prefill: {
                     name: user?.name || '',
@@ -91,17 +135,40 @@ const PaymentPage = () => {
                     contact: user?.phone || ''
                 },
                 theme: {
-                    color: '#ef4444' // Red color
-                }
+                    color: '#ef4444'  // Red color
+                },
+                // ✅ Add these for better error handling
+                retry: {
+                    enabled: true,
+                    max_count: 3
+                },
+                send_sms_hash: true,
+                remember_customer: true
             };
 
-            // Open Razorpay checkout [citation:4]
+            // Open Razorpay checkout
             const razorpay = new window.Razorpay(options);
+            
+            // Add error handler
+            razorpay.on('payment.failed', (response) => {
+                console.error('❌ Payment failed:', response.error);
+                setError(`Payment failed: ${response.error.description || 'Unknown error'}`);
+                setLoading(false);
+            });
+
             razorpay.open();
 
         } catch (error) {
-            console.error('Payment error:', error);
-            setError(error.response?.data?.message || 'Payment failed. Please try again.');
+            console.error('❌ Payment error:', error);
+            
+            // Check for specific error codes [citation:2]
+            if (error.response?.data?.message?.includes('amount')) {
+                setError('Invalid amount. Please check your order total.');
+            } else if (error.response?.status === 401) {
+                setError('Payment authentication failed. Please refresh and try again.');
+            } else {
+                setError(error.response?.data?.message || 'Payment failed. Please try again.');
+            }
             setLoading(false);
         }
     };
@@ -122,20 +189,18 @@ const PaymentPage = () => {
                         <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                                 <span className="text-gray-600">Items Total</span>
-                                <span className="font-medium">₹{totalPrice}</span>
+                                <span className="font-medium">₹{amountToPay - (amountToPay > 500 ? 0 : 40)}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-600">Delivery</span>
                                 <span className="font-medium">
-                                    {totalPrice > 500 ? 'FREE' : '₹40'}
+                                    {amountToPay > 500 ? 'FREE' : '₹40'}
                                 </span>
                             </div>
                             <div className="border-t pt-2 mt-2">
                                 <div className="flex justify-between font-bold">
                                     <span>Total</span>
-                                    <span className="text-red-500">
-                                        ₹{totalPrice + (totalPrice > 500 ? 0 : 40)}
-                                    </span>
+                                    <span className="text-red-500">₹{amountToPay}</span>
                                 </div>
                             </div>
                         </div>
@@ -159,10 +224,18 @@ const PaymentPage = () => {
                         </div>
                     )}
 
+                    {/* Script Loading Indicator */}
+                    {!scriptLoaded && !error && (
+                        <div className="mb-4 p-3 bg-yellow-50 text-yellow-700 rounded-lg text-sm flex items-center gap-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-yellow-500 border-t-transparent"></div>
+                            Loading payment gateway...
+                        </div>
+                    )}
+
                     {/* Pay Button */}
                     <button
                         onClick={handlePayment}
-                        disabled={loading}
+                        disabled={loading || !scriptLoaded || amountToPay < 1}
                         className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-4 rounded-xl transition transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                         {loading ? (
@@ -173,7 +246,7 @@ const PaymentPage = () => {
                         ) : (
                             <>
                                 <FaRupeeSign />
-                                <span>Pay ₹{totalPrice + (totalPrice > 500 ? 0 : 40)}</span>
+                                <span>Pay ₹{amountToPay}</span>
                             </>
                         )}
                     </button>
