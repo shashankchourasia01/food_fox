@@ -7,6 +7,7 @@ import paymentService from '../services/paymentService';
 const PaymentPage = () => {
     const navigate = useNavigate();
     const { user } = useSelector((state) => state.auth);
+    const { cartItems } = useSelector((state) => state.cart); // ✅ Get cart items
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [scriptLoaded, setScriptLoaded] = useState(false);
@@ -23,7 +24,6 @@ const PaymentPage = () => {
     useEffect(() => {
         const loadRazorpayScript = () => {
             return new Promise((resolve) => {
-                // Check if script already loaded
                 if (document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]')) {
                     console.log('✅ Razorpay script already loaded');
                     setScriptLoaded(true);
@@ -58,6 +58,13 @@ const PaymentPage = () => {
             return;
         }
 
+        // ✅ Check if cart has items
+        if (!cartItems || cartItems.length === 0) {
+            setError('Your cart is empty. Please add items to order.');
+            setLoading(false);
+            return;
+        }
+
         setLoading(true);
         setError('');
 
@@ -76,13 +83,10 @@ const PaymentPage = () => {
 
             const { data: order, keyId } = orderResponse.data;
 
-            // ✅ FIX: Amount should be in paise (already done in backend)
-            console.log('💰 Order amount in paise:', order.amount);
-
             // Prepare Razorpay options
             const options = {
                 key: keyId,
-                amount: order.amount,  // Already in paise from backend
+                amount: order.amount,
                 currency: order.currency || 'INR',
                 name: 'FlavorFix',
                 description: 'Food Order Payment',
@@ -92,14 +96,31 @@ const PaymentPage = () => {
                     console.log('✅ Payment success:', response);
                     
                     try {
-                        // Get order data from session
+                        // ✅ Calculate items price
+                        const itemsSubtotal = cartItems.reduce(
+                            (sum, item) => sum + (item.price * item.quantity), 
+                            0
+                        );
+                        
+                        const deliveryCharge = itemsSubtotal > 500 ? 0 : 40;
+                        
+                        // ✅ Prepare order data with cart items
                         const orderData = {
-                            items: [], // You need to pass cart items here
-                            itemsPrice: amountToPay - (amountToPay > 500 ? 0 : 40),
-                            deliveryPrice: amountToPay > 500 ? 0 : 40,
+                            items: cartItems.map(item => ({
+                                product: item.product?._id || item.id,
+                                name: item.name,
+                                quantity: item.quantity,
+                                price: item.price,
+                                image: item.image,
+                                pieces: item.pieces
+                            })),
+                            itemsPrice: itemsSubtotal,
+                            deliveryPrice: deliveryCharge,
                             totalPrice: amountToPay,
                             shippingAddress: checkoutAddress
                         };
+
+                        console.log('📦 Order data with items:', orderData);
 
                         // Verify payment and create order
                         const verifyResponse = await paymentService.verifyPayment({
@@ -126,7 +147,7 @@ const PaymentPage = () => {
                         console.log('⚠️ Payment modal dismissed');
                         setLoading(false);
                     },
-                    confirm_close: true,  // Ask confirmation before closing
+                    confirm_close: true,
                     animation: true
                 },
                 prefill: {
@@ -135,9 +156,8 @@ const PaymentPage = () => {
                     contact: user?.phone || ''
                 },
                 theme: {
-                    color: '#ef4444'  // Red color
+                    color: '#ef4444'
                 },
-                // ✅ Add these for better error handling
                 retry: {
                     enabled: true,
                     max_count: 3
@@ -149,7 +169,6 @@ const PaymentPage = () => {
             // Open Razorpay checkout
             const razorpay = new window.Razorpay(options);
             
-            // Add error handler
             razorpay.on('payment.failed', (response) => {
                 console.error('❌ Payment failed:', response.error);
                 setError(`Payment failed: ${response.error.description || 'Unknown error'}`);
@@ -161,7 +180,6 @@ const PaymentPage = () => {
         } catch (error) {
             console.error('❌ Payment error:', error);
             
-            // Check for specific error codes [citation:2]
             if (error.response?.data?.message?.includes('amount')) {
                 setError('Invalid amount. Please check your order total.');
             } else if (error.response?.status === 401) {
@@ -183,13 +201,30 @@ const PaymentPage = () => {
                         Payment
                     </h1>
 
+                    {/* Cart Items Preview */}
+                    {cartItems?.length > 0 && (
+                        <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                            <h3 className="font-semibold text-gray-700 mb-2">Order Items</h3>
+                            {cartItems.map((item) => (
+                                <div key={item.product?._id || item.id} className="flex justify-between text-sm mb-2">
+                                    <span className="text-gray-600">
+                                        {item.name} x{item.quantity}
+                                    </span>
+                                    <span className="font-medium">₹{item.price * item.quantity}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
                     {/* Order Summary */}
                     <div className="bg-gray-50 rounded-lg p-4 mb-6">
                         <h3 className="font-semibold text-gray-700 mb-2">Order Summary</h3>
                         <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                                 <span className="text-gray-600">Items Total</span>
-                                <span className="font-medium">₹{amountToPay - (amountToPay > 500 ? 0 : 40)}</span>
+                                <span className="font-medium">
+                                    ₹{cartItems?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0}
+                                </span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-600">Delivery</span>
@@ -235,7 +270,7 @@ const PaymentPage = () => {
                     {/* Pay Button */}
                     <button
                         onClick={handlePayment}
-                        disabled={loading || !scriptLoaded || amountToPay < 1}
+                        disabled={loading || !scriptLoaded || amountToPay < 1 || !cartItems?.length}
                         className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-4 rounded-xl transition transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                         {loading ? (
