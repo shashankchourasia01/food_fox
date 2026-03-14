@@ -34,12 +34,12 @@ const useDeliveryCheck = () => {
       return;
     }
 
-    console.log(`📍 Checking delivery for coordinates: ${lat}, ${lng}`);
+    // console.log(`📍 Checking delivery for coordinates: ${lat}, ${lng}`);
     setDeliveryStatus(prev => ({ ...prev, loading: true, error: null }));
 
     try {
       const response = await axios.post(`${API_URL}/delivery/check`, { lat, lng });
-      console.log('✅ Delivery check response:', response.data);
+      // console.log('✅ Delivery check response:', response.data);
       
       setDeliveryStatus({
         ...response.data.data,

@@ -38,7 +38,7 @@ const Navbar = () => {
 
   useEffect(() => {
     if (location.coordinates) {
-        console.log('📍 Navbar: Got coordinates, checking delivery...');
+        // console.log('📍 Navbar: Got coordinates, checking delivery...');
         checkDelivery(location.coordinates.latitude, location.coordinates.longitude);
     } else {
         console.log('📍 Navbar: No coordinates yet');
