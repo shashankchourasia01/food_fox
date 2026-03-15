@@ -40,6 +40,9 @@ const CheckoutPage = () => {
     const [showAddressForm, setShowAddressForm] = useState(false);
     const [editingAddress, setEditingAddress] = useState(null);
     const [formErrors, setFormErrors] = useState({});
+    
+    // 👇 YEH NAYA STATE ADD KARO - Location capture status ke liye
+    const [locationStatus, setLocationStatus] = useState('');
 
     // New address form
     const [newAddress, setNewAddress] = useState({
@@ -104,6 +107,75 @@ const validateAddress = (address) => {
             checkDelivery(location.coordinates.latitude, location.coordinates.longitude);
         }
     }, [location.coordinates, checkDelivery]);
+
+    // 👇 YEH NAYA FUNCTION ADD KARO - Location capture karne ke liye
+    const captureUserLocation = () => {
+        return new Promise((resolve, reject) => {
+            setLocationStatus('Getting your location...');
+            
+            if (!navigator.geolocation) {
+                setLocationStatus('Geolocation not supported');
+                reject(new Error('Geolocation not supported'));
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    
+                    // Save to localStorage
+                    localStorage.setItem('userCoordinates', JSON.stringify({
+                        latitude,
+                        longitude
+                    }));
+                    
+                    setLocationStatus('Location captured ✅');
+                    console.log('📍 Location captured:', { latitude, longitude });
+                    
+                    resolve({ latitude, longitude });
+                },
+                (error) => {
+                    console.error('Location error:', error);
+                    let errorMessage = 'Failed to get location';
+                    
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = 'Please allow location access';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = 'Location unavailable';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = 'Location request timed out';
+                            break;
+                    }
+                    
+                    setLocationStatus(errorMessage);
+                    reject(error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        });
+    };
+
+    // 👇 YEH NAYA FUNCTION ADD KARO - Manual location set karne ke liye (optional)
+    const setManualLocation = () => {
+        // Default restaurant location (Bangalore)
+        const defaultLat = 12.9716;
+        const defaultLng = 77.5946;
+        
+        localStorage.setItem('userCoordinates', JSON.stringify({
+            latitude: defaultLat,
+            longitude: defaultLng
+        }));
+        
+        setLocationStatus('Using default location');
+        alert('Using default restaurant location for delivery check');
+    };
 
     const fetchAddresses = async () => {
         try {
@@ -331,9 +403,31 @@ const validateAddress = (address) => {
 
     // STEP 7: Delivery check + STEP 9: Payment redirect
     const handlePlaceOrder = async () => {
+        console.log('🔍 localStorage userCoordinates:', localStorage.getItem('userCoordinates'));
+        console.log('🔍 localStorage userAddress:', localStorage.getItem('userAddress'));
+        
         // Validate address
         if (!validateSelectedAddress()) {
             return;
+        }
+
+        // 👇 YEH NAYA CODE ADD KARO - Pehle location capture karo agar nahi hai
+        const savedCoords = JSON.parse(localStorage.getItem('userCoordinates') || '{}');
+        
+        if (!savedCoords.latitude || !savedCoords.longitude) {
+            try {
+                await captureUserLocation();
+            } catch (error) {
+                const useDefault = window.confirm(
+                    'Unable to get your location. Do you want to continue with default location?'
+                );
+                
+                if (useDefault) {
+                    setManualLocation();
+                } else {
+                    return; // Order place mat karo
+                }
+            }
         }
 
         // Check if delivery status is still loading
@@ -385,8 +479,8 @@ const validateAddress = (address) => {
                     city: selectedAddress.city,
                     pincode: selectedAddress.pincode,
                     type: selectedAddress.type || 'home',
-                    lat: finalLat,  // ✅ सीधे localStorage से
-                    lng: finalLng   // ✅ सीधे localStorage से
+                    lat: savedCoords.latitude || null,
+                    lng: savedCoords.longitude || null
                 },
                 itemsPrice: subtotal,
                 deliveryPrice: deliveryCharge,
@@ -395,6 +489,7 @@ const validateAddress = (address) => {
             };
 
             console.log('📦 Order Data:', orderData);
+            console.log('📦 Final orderData.shippingAddress:', orderData.shippingAddress);
 
             // STEP 9: Payment Method based navigation
             if (paymentMethod === 'COD') {
@@ -457,6 +552,27 @@ const validateAddress = (address) => {
                         Checkout
                     </h1>
                 </div>
+
+                {/* 👇 YEH NAYA BANNER ADD KARO - Location status dikhane ke liye */}
+                {locationStatus && (
+                    <div className={`mb-4 p-3 rounded-lg text-sm ${
+                        locationStatus.includes('✅') ? 'bg-green-50 text-green-700 border border-green-200' :
+                        locationStatus.includes('Failed') || locationStatus.includes('denied') ? 'bg-red-50 text-red-700 border border-red-200' :
+                        'bg-yellow-50 text-yellow-700 border border-yellow-200'
+                    }`}>
+                        <div className="flex items-center justify-between">
+                            <span>📍 {locationStatus}</span>
+                            {locationStatus.includes('Failed') && (
+                                <button
+                                    onClick={setManualLocation}
+                                    className="text-blue-600 hover:text-blue-800 underline text-xs"
+                                >
+                                    Use default location
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {/* Delivery Status Banner (Optional) */}
                 {deliveryStatus.isDeliverable === false && (
@@ -936,7 +1052,7 @@ export default CheckoutPage;
 
 
 
-
+// // code for razorpay
 // // updated code for location
 // import React, { useState, useEffect } from 'react';
 // import { useSelector, useDispatch } from 'react-redux';
@@ -955,7 +1071,8 @@ export default CheckoutPage;
 // import { createOrder } from '../redux/actions/orderActions';
 // import { loadCart } from '../redux/actions/cartActions';
 // import addressService from '../services/addressService';
-// import useDeliveryCheck from '../hooks/useDeliveryCheck'; // ✅ Import hook
+// import useDeliveryCheck from '../hooks/useDeliveryCheck';
+// import useGeolocation from '../hooks/useGeolocation';
 
 // const CheckoutPage = () => {
 //     const dispatch = useDispatch();
@@ -964,8 +1081,9 @@ export default CheckoutPage;
 //     const { cartItems, totalPrice, loading: cartLoading } = useSelector((state) => state.cart);
 //     const { user } = useSelector((state) => state.auth);
 
-//     // ✅ Get delivery status from hook
-//     const { deliveryStatus } = useDeliveryCheck();
+//     // Get location and delivery status
+//     const { location } = useGeolocation();
+//     const { deliveryStatus, checkDelivery } = useDeliveryCheck();
 
 //     // States
 //     const [step, setStep] = useState(1);
@@ -999,14 +1117,47 @@ export default CheckoutPage;
 
 //     const { subtotal, deliveryCharge, total } = calculateTotals();
 
+//     // States ke baad ye function add karo (around line 50-60)
+// const validateAddress = (address) => {
+//   const vagueTerms = ['home', 'work', 'near', 'somewhere', 'jayanagar', 'hsr', 'btm', 'koramangala', 'indiranagar', 'whitefield'];
+//   const addressLower = address.toLowerCase();
+  
+//   // Check if address contains at least one number
+//   const hasNumber = /\d/.test(address);
+  
+//   // Check if address length is reasonable
+//   const isLengthValid = address.length > 15;
+  
+//   // Check if it's not just a vague area name
+//   const isVague = vagueTerms.some(term => 
+//     addressLower === term || (addressLower.includes(term) && !hasNumber)
+//   );
+  
+//   return hasNumber && isLengthValid && !isVague;
+// };
+
 //     // Load addresses on mount
 //     useEffect(() => {
 //         fetchAddresses();
 //     }, []);
 
+//     // Debug logs
 //     useEffect(() => {
 //         console.log('Selected address changed:', selectedAddress);
 //     }, [selectedAddress]);
+
+//     useEffect(() => {
+//         console.log('📍 Current deliveryStatus:', deliveryStatus);
+//         console.log('📍 isDeliverable:', deliveryStatus.isDeliverable);
+//         console.log('📍 Coordinates from user:', location.coordinates);
+//     }, [deliveryStatus, location.coordinates]);
+
+//     // Call checkDelivery when coordinates change
+//     useEffect(() => {
+//         if (location.coordinates) {
+//             checkDelivery(location.coordinates.latitude, location.coordinates.longitude);
+//         }
+//     }, [location.coordinates, checkDelivery]);
 
 //     const fetchAddresses = async () => {
 //         try {
@@ -1167,56 +1318,100 @@ export default CheckoutPage;
 //         resetAddressForm();
 //     };
 
+//     // const validateSelectedAddress = () => {
+//     //     if (!selectedAddress) {
+//     //         alert('Please select a delivery address');
+//     //         return false;
+//     //     }
+
+//     //     console.log('Validating selected address:', selectedAddress);
+
+//     //     const requiredFields = {
+//     //         address: 'Address',
+//     //         city: 'City',
+//     //         pincode: 'Pincode'
+//     //     };
+
+//     //     for (const [field, label] of Object.entries(requiredFields)) {
+//     //         if (!selectedAddress[field] || selectedAddress[field].trim() === '') {
+//     //             alert(`Selected address is missing ${label}. Please choose another address or edit this one.`);
+//     //             return false;
+//     //         }
+//     //     }
+
+//     //     if (!/^\d{6}$/.test(selectedAddress.pincode)) {
+//     //         alert('Invalid pincode format in selected address. Please use a 6-digit pincode.');
+//     //         return false;
+//     //     }
+
+//     //     return true;
+//     // };
+
+
 //     const validateSelectedAddress = () => {
-//         if (!selectedAddress) {
-//             alert('Please select a delivery address');
-//             return false;
-//         }
+//     if (!selectedAddress) {
+//         alert('Please select a delivery address');
+//         return false;
+//     }
 
-//         console.log('Validating selected address:', selectedAddress);
+//     console.log('Validating selected address:', selectedAddress);
 
-//         const requiredFields = {
-//             address: 'Address',
-//             city: 'City',
-//             pincode: 'Pincode'
-//         };
-
-//         for (const [field, label] of Object.entries(requiredFields)) {
-//             if (!selectedAddress[field] || selectedAddress[field].trim() === '') {
-//                 alert(`Selected address is missing ${label}. Please choose another address or edit this one.`);
-//                 return false;
-//             }
-//         }
-
-//         if (!/^\d{6}$/.test(selectedAddress.pincode)) {
-//             alert('Invalid pincode format in selected address. Please use a 6-digit pincode.');
-//             return false;
-//         }
-
-//         return true;
+//     const requiredFields = {
+//         address: 'Address',
+//         city: 'City',
+//         pincode: 'Pincode'
 //     };
 
-//     // ✅ STEP 7: Updated handlePlaceOrder with delivery check
+//     for (const [field, label] of Object.entries(requiredFields)) {
+//         if (!selectedAddress[field] || selectedAddress[field].trim() === '') {
+//             alert(`Selected address is missing ${label}. Please choose another address or edit this one.`);
+//             return false;
+//         }
+//     }
+
+//     // ✅ Naya validation - Check if address is specific enough
+//     if (!validateAddress(selectedAddress.address)) {
+//         alert('Please enter a more specific address with house/building number and street name.');
+//         return false;
+//     }
+
+//     if (!/^\d{6}$/.test(selectedAddress.pincode)) {
+//         alert('Invalid pincode format in selected address. Please use a 6-digit pincode.');
+//         return false;
+//     }
+
+//     return true;
+// };
+
+//     // STEP 7: Delivery check + STEP 9: Payment redirect
 //     const handlePlaceOrder = async () => {
+//         console.log('🔍 localStorage userCoordinates:', localStorage.getItem('userCoordinates'));
+//         console.log('🔍 localStorage userAddress:', localStorage.getItem('userAddress'));
 //         // Validate address
 //         if (!validateSelectedAddress()) {
 //             return;
 //         }
 
-//         // ✅ Check delivery availability
+//         // Check if delivery status is still loading
+//         if (deliveryStatus.loading) {
+//             alert('Please wait while we check delivery availability for your location.');
+//             return;
+//         }
+
+//         // Check if delivery check failed
+//         if (deliveryStatus.error) {
+//             alert('Unable to verify delivery availability. Please try again or contact support.');
+//             return;
+//         }
+
+//         // Check delivery availability
 //         if (deliveryStatus.isDeliverable === false) {
 //             const errorMsg = `Delivery not available in your area. We currently deliver within ${deliveryStatus.maxDistance || 10}km radius.`;
 //             alert(errorMsg);
 //             return;
 //         }
 
-//         // Show warning if delivery check is still loading
-//         if (deliveryStatus.loading) {
-//             alert('Please wait while we check delivery availability for your location.');
-//             return;
-//         }
-
-//         // Show warning if location not detected
+//         // Check if location not detected
 //         if (deliveryStatus.isDeliverable === null) {
 //             alert('Please allow location access or select your location to check delivery availability.');
 //             return;
@@ -1225,6 +1420,18 @@ export default CheckoutPage;
 //         try {
 //             setLoading(true);
 
+//             // Get coordinates from localStorage if available
+//             const savedCoords = JSON.parse(localStorage.getItem('userCoordinates') || '{}');
+
+//             console.log('📍 Saved coordinates:', savedCoords);
+
+//             // ✅ Fix: Use localStorage values
+//             const finalLat = savedCoords.latitude || null;
+//             const finalLng = savedCoords.longitude || null;
+
+//             console.log('📍 Final lat/lng:', { finalLat, finalLng });
+
+//             // Prepare order data
 //             const orderData = {
 //                 shippingAddress: {
 //                     fullName: user?.name || 'Customer',
@@ -1233,9 +1440,10 @@ export default CheckoutPage;
 //                     landmark: selectedAddress.landmark || '',
 //                     city: selectedAddress.city,
 //                     pincode: selectedAddress.pincode,
-//                     type: selectedAddress.type || 'home'
+//                     type: selectedAddress.type || 'home',
+//                     lat: savedCoords.latitude || null,
+//                     lng: savedCoords.longitude || null
 //                 },
-//                 paymentMethod,
 //                 itemsPrice: subtotal,
 //                 deliveryPrice: deliveryCharge,
 //                 totalPrice: total,
@@ -1243,14 +1451,34 @@ export default CheckoutPage;
 //             };
 
 //             console.log('📦 Order Data:', orderData);
+//             console.log('📦 Final orderData.shippingAddress:', orderData.shippingAddress);
 
-//             const result = await dispatch(createOrder(orderData));
-            
-//             if (result && result._id) {
-//                 if (result.whatsappUrl) {
-//                     window.open(result.whatsappUrl, '_blank');
+//             // STEP 9: Payment Method based navigation
+//             if (paymentMethod === 'COD') {
+//                 // COD Order - Place directly
+//                 const result = await dispatch(createOrder({
+//                     ...orderData,
+//                     paymentMethod: 'COD'
+//                 }));
+                
+//                 if (result && result._id) {
+//                     if (result.whatsappUrl) {
+//                         window.open(result.whatsappUrl, '_blank');
+//                     }
+//                     navigate(`/order-success/${result._id}`);
 //                 }
-//                 navigate(`/order-success/${result._id}`);
+//             } else {
+//                 // Online Payment - Save address in sessionStorage and go to payment page
+//                 sessionStorage.setItem('checkoutAddress', JSON.stringify(orderData.shippingAddress));
+//                 sessionStorage.setItem('checkoutOrderData', JSON.stringify({
+//                     itemsPrice: subtotal,
+//                     deliveryPrice: deliveryCharge,
+//                     totalPrice: total,
+//                     paymentMethod
+//                 }));
+                
+//                 // Navigate to payment page
+//                 navigate('/payment');
 //             }
             
 //         } catch (error) {
@@ -1742,7 +1970,7 @@ export default CheckoutPage;
 //                                     }
 //                                 `}
 //                             >
-//                                 {loading ? 'Placing Order...' : 'Place Order • ₹' + total}
+//                                 {loading ? 'Placing Order...' : `Place Order • ₹${total}`}
 //                             </button>
 
 //                             {/* Security Note */}

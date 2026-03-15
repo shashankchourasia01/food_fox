@@ -159,56 +159,43 @@ const LocationPage = () => {
   // }, [navigate, selectPlace]);
 
 
-
-  const handlePredictionClick = useCallback((prediction) => {
-  if (!placesService.current) {
-    console.error('❌ PlacesService not initialized');
-    return;
-  }
+const handlePredictionClick = useCallback((prediction) => {
+  if (!placesService.current) return;
 
   setIsLoading(true);
 
   placesService.current.getDetails(
     { 
       placeId: prediction.place_id, 
-      fields: ['geometry', 'formatted_address', 'address_components', 'name', 'place_id'] 
+      fields: ['geometry', 'formatted_address'] 
     },
     (place, status) => {
       setIsLoading(false);
       
       if (status === 'OK' && place) {
-        console.log('✅ Place details retrieved:', place.formatted_address);
-        console.log('📍 Coordinates:', {
-          lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng()
-
-          
-        });
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
         
-        // ✅ Save to localStorage with coordinates
-        const locationData = {
-          address: place.formatted_address,
-          lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng()
-        };
+        console.log('📍 Selected place - Lat:', lat, 'Lng:', lng);
         
-        localStorage.setItem('userAddress', locationData.address);
+        // ✅ Save to localStorage
+        localStorage.setItem('userAddress', place.formatted_address);
         localStorage.setItem('userCoordinates', JSON.stringify({
-          latitude: locationData.lat,
-          longitude: locationData.lng
+          latitude: lat,
+          longitude: lng
         }));
         
-        // Call selectPlace if needed
-        selectPlace(place);
+        console.log('💾 Saved to localStorage:', {
+          address: place.formatted_address,
+          lat: lat,
+          lng: lng
+        });
         
         navigate(-1);
-      } else {
-        console.error('❌ Failed to get place details:', status);
       }
     }
   );
-}, [navigate, selectPlace]);
-
+}, [navigate]);
 
 
 
