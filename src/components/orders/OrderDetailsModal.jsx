@@ -16,7 +16,7 @@ const OrderDetailsModal = ({ order, onClose, formatDate, getStatusColor, getStat
 const getMapsLink = () => {
   console.log('📍 Order shippingAddress:', order.shippingAddress);
   console.log('📍 Lat exists:', !!order.shippingAddress?.lat);
-  console.dog('📍 Lng exists:', !!order.shippingAddress?.lng);
+  console.log('📍 Lng exists:', !!order.shippingAddress?.lng);
   
   if (order.shippingAddress?.lat && order.shippingAddress?.lng) {
     const link = `https://www.google.com/maps/dir/?api=1&destination=${order.shippingAddress.lat},${order.shippingAddress.lng}`;
