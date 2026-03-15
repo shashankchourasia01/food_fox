@@ -63,6 +63,25 @@ const CheckoutPage = () => {
 
     const { subtotal, deliveryCharge, total } = calculateTotals();
 
+    // States ke baad ye function add karo (around line 50-60)
+const validateAddress = (address) => {
+  const vagueTerms = ['home', 'work', 'near', 'somewhere', 'jayanagar', 'hsr', 'btm', 'koramangala', 'indiranagar', 'whitefield'];
+  const addressLower = address.toLowerCase();
+  
+  // Check if address contains at least one number
+  const hasNumber = /\d/.test(address);
+  
+  // Check if address length is reasonable
+  const isLengthValid = address.length > 15;
+  
+  // Check if it's not just a vague area name
+  const isVague = vagueTerms.some(term => 
+    addressLower === term || (addressLower.includes(term) && !hasNumber)
+  );
+  
+  return hasNumber && isLengthValid && !isVague;
+};
+
     // Load addresses on mount
     useEffect(() => {
         fetchAddresses();
@@ -245,34 +264,70 @@ const CheckoutPage = () => {
         resetAddressForm();
     };
 
+    // const validateSelectedAddress = () => {
+    //     if (!selectedAddress) {
+    //         alert('Please select a delivery address');
+    //         return false;
+    //     }
+
+    //     console.log('Validating selected address:', selectedAddress);
+
+    //     const requiredFields = {
+    //         address: 'Address',
+    //         city: 'City',
+    //         pincode: 'Pincode'
+    //     };
+
+    //     for (const [field, label] of Object.entries(requiredFields)) {
+    //         if (!selectedAddress[field] || selectedAddress[field].trim() === '') {
+    //             alert(`Selected address is missing ${label}. Please choose another address or edit this one.`);
+    //             return false;
+    //         }
+    //     }
+
+    //     if (!/^\d{6}$/.test(selectedAddress.pincode)) {
+    //         alert('Invalid pincode format in selected address. Please use a 6-digit pincode.');
+    //         return false;
+    //     }
+
+    //     return true;
+    // };
+
+
     const validateSelectedAddress = () => {
-        if (!selectedAddress) {
-            alert('Please select a delivery address');
-            return false;
-        }
+    if (!selectedAddress) {
+        alert('Please select a delivery address');
+        return false;
+    }
 
-        console.log('Validating selected address:', selectedAddress);
+    console.log('Validating selected address:', selectedAddress);
 
-        const requiredFields = {
-            address: 'Address',
-            city: 'City',
-            pincode: 'Pincode'
-        };
-
-        for (const [field, label] of Object.entries(requiredFields)) {
-            if (!selectedAddress[field] || selectedAddress[field].trim() === '') {
-                alert(`Selected address is missing ${label}. Please choose another address or edit this one.`);
-                return false;
-            }
-        }
-
-        if (!/^\d{6}$/.test(selectedAddress.pincode)) {
-            alert('Invalid pincode format in selected address. Please use a 6-digit pincode.');
-            return false;
-        }
-
-        return true;
+    const requiredFields = {
+        address: 'Address',
+        city: 'City',
+        pincode: 'Pincode'
     };
+
+    for (const [field, label] of Object.entries(requiredFields)) {
+        if (!selectedAddress[field] || selectedAddress[field].trim() === '') {
+            alert(`Selected address is missing ${label}. Please choose another address or edit this one.`);
+            return false;
+        }
+    }
+
+    // ✅ Naya validation - Check if address is specific enough
+    if (!validateAddress(selectedAddress.address)) {
+        alert('Please enter a more specific address with house/building number and street name.');
+        return false;
+    }
+
+    if (!/^\d{6}$/.test(selectedAddress.pincode)) {
+        alert('Invalid pincode format in selected address. Please use a 6-digit pincode.');
+        return false;
+    }
+
+    return true;
+};
 
     // STEP 7: Delivery check + STEP 9: Payment redirect
     const handlePlaceOrder = async () => {
