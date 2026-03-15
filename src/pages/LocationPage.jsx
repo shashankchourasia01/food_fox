@@ -122,41 +122,94 @@ const LocationPage = () => {
     };
   }, []);
 
-  const handlePredictionClick = useCallback((prediction) => {
-    if (!placesService.current) {
-      console.error('❌ PlacesService not initialized');
-      return;
-    }
+  // const handlePredictionClick = useCallback((prediction) => {
+  //   if (!placesService.current) {
+  //     console.error('❌ PlacesService not initialized');
+  //     return;
+  //   }
 
-    setIsLoading(true);
+  //   setIsLoading(true);
 
-    placesService.current.getDetails(
-      { 
-        placeId: prediction.place_id, 
-        fields: ['geometry', 'formatted_address', 'address_components', 'name'] 
-      },
-      (place, status) => {
-        setIsLoading(false);
+  //   placesService.current.getDetails(
+  //     { 
+  //       placeId: prediction.place_id, 
+  //       fields: ['geometry', 'formatted_address', 'address_components', 'name'] 
+  //     },
+  //     (place, status) => {
+  //       setIsLoading(false);
         
-        if (status === 'OK' && place) {
-          console.log('✅ Place details retrieved:', place.formatted_address);
+  //       if (status === 'OK' && place) {
+  //         console.log('✅ Place details retrieved:', place.formatted_address);
           
-          selectPlace(place);
+  //         selectPlace(place);
           
-          // Save to localStorage
-          localStorage.setItem('userAddress', place.formatted_address);
-          localStorage.setItem('userCoordinates', JSON.stringify({
-            latitude: place.geometry.location.lat(),
-            longitude: place.geometry.location.lng()
-          }));
+  //         // Save to localStorage
+  //         localStorage.setItem('userAddress', place.formatted_address);
+  //         localStorage.setItem('userCoordinates', JSON.stringify({
+  //           latitude: place.geometry.location.lat(),
+  //           longitude: place.geometry.location.lng()
+  //         }));
           
-          navigate(-1);
-        } else {
-          console.error('❌ Failed to get place details:', status);
-        }
+  //         navigate(-1);
+  //       } else {
+  //         console.error('❌ Failed to get place details:', status);
+  //       }
+  //     }
+  //   );
+  // }, [navigate, selectPlace]);
+
+
+
+  const handlePredictionClick = useCallback((prediction) => {
+  if (!placesService.current) {
+    console.error('❌ PlacesService not initialized');
+    return;
+  }
+
+  setIsLoading(true);
+
+  placesService.current.getDetails(
+    { 
+      placeId: prediction.place_id, 
+      fields: ['geometry', 'formatted_address', 'address_components', 'name', 'place_id'] 
+    },
+    (place, status) => {
+      setIsLoading(false);
+      
+      if (status === 'OK' && place) {
+        console.log('✅ Place details retrieved:', place.formatted_address);
+        console.log('📍 Coordinates:', {
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng()
+        });
+        
+        // ✅ Save to localStorage with coordinates
+        const locationData = {
+          address: place.formatted_address,
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng()
+        };
+        
+        localStorage.setItem('userAddress', locationData.address);
+        localStorage.setItem('userCoordinates', JSON.stringify({
+          latitude: locationData.lat,
+          longitude: locationData.lng
+        }));
+        
+        // Call selectPlace if needed
+        selectPlace(place);
+        
+        navigate(-1);
+      } else {
+        console.error('❌ Failed to get place details:', status);
       }
-    );
-  }, [navigate, selectPlace]);
+    }
+  );
+}, [navigate, selectPlace]);
+
+
+
+
 
   const handleUseCurrentLocation = useCallback(() => {
     getCurrentLocation();

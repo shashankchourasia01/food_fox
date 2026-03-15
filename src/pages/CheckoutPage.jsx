@@ -364,6 +364,9 @@ const validateAddress = (address) => {
         try {
             setLoading(true);
 
+            // Get coordinates from localStorage if available
+            const savedCoords = JSON.parse(localStorage.getItem('userCoordinates') || '{}');
+
             // Prepare order data
             const orderData = {
                 shippingAddress: {
@@ -373,7 +376,10 @@ const validateAddress = (address) => {
                     landmark: selectedAddress.landmark || '',
                     city: selectedAddress.city,
                     pincode: selectedAddress.pincode,
-                    type: selectedAddress.type || 'home'
+                    type: selectedAddress.type || 'home',
+                    // ✅ Add lat/lng from localStorage or selectedAddress
+                    lat: selectedAddress.lat || savedCoords.latitude || null,
+                    lng: selectedAddress.lng || savedCoords.longitude || null
                 },
                 itemsPrice: subtotal,
                 deliveryPrice: deliveryCharge,

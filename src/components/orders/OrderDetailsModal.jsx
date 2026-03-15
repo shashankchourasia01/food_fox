@@ -5,12 +5,27 @@ import { FaTimes, FaMapMarkerAlt, FaCreditCard, FaTruck } from 'react-icons/fa';
 const OrderDetailsModal = ({ order, onClose, formatDate, getStatusColor, getStatusIcon }) => {
   
   // ✅ Google Maps link generate karne ka function
-  const getMapsLink = () => {
-    if (order.shippingAddress?.lat && order.shippingAddress?.lng) {
-      return `https://www.google.com/maps/dir/?api=1&destination=${order.shippingAddress.lat},${order.shippingAddress.lng}`;
-    }
-    return null;
-  };
+  // const getMapsLink = () => {
+  //   if (order.shippingAddress?.lat && order.shippingAddress?.lng) {
+  //     return `https://www.google.com/maps/dir/?api=1&destination=${order.shippingAddress.lat},${order.shippingAddress.lng}`;
+  //   }
+  //   return null;
+  // };
+
+  // getMapsLink function में
+const getMapsLink = () => {
+  console.log('📍 Order shippingAddress:', order.shippingAddress);
+  console.log('📍 Lat exists:', !!order.shippingAddress?.lat);
+  console.dog('📍 Lng exists:', !!order.shippingAddress?.lng);
+  
+  if (order.shippingAddress?.lat && order.shippingAddress?.lng) {
+    const link = `https://www.google.com/maps/dir/?api=1&destination=${order.shippingAddress.lat},${order.shippingAddress.lng}`;
+    console.log('✅ Maps link generated:', link);
+    return link;
+  }
+  console.log('❌ No lat/lng found');
+  return null;
+};
 
   const mapsLink = getMapsLink();
 
