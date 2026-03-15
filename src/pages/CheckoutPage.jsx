@@ -367,6 +367,14 @@ const validateAddress = (address) => {
             // Get coordinates from localStorage if available
             const savedCoords = JSON.parse(localStorage.getItem('userCoordinates') || '{}');
 
+            console.log('📍 Saved coordinates:', savedCoords);
+
+            // ✅ Fix: Use localStorage values
+            const finalLat = savedCoords.latitude || null;
+            const finalLng = savedCoords.longitude || null;
+
+            console.log('📍 Final lat/lng:', { finalLat, finalLng });
+
             // Prepare order data
             const orderData = {
                 shippingAddress: {
@@ -377,9 +385,8 @@ const validateAddress = (address) => {
                     city: selectedAddress.city,
                     pincode: selectedAddress.pincode,
                     type: selectedAddress.type || 'home',
-                    // ✅ Add lat/lng from localStorage or selectedAddress
-                    lat: selectedAddress.lat || savedCoords.latitude || null,
-                    lng: selectedAddress.lng || savedCoords.longitude || null
+                    lat: finalLat,  // ✅ सीधे localStorage से
+                    lng: finalLng   // ✅ सीधे localStorage से
                 },
                 itemsPrice: subtotal,
                 deliveryPrice: deliveryCharge,

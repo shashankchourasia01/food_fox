@@ -181,6 +181,8 @@ const LocationPage = () => {
         console.log('📍 Coordinates:', {
           lat: place.geometry.location.lat(),
           lng: place.geometry.location.lng()
+
+          
         });
         
         // ✅ Save to localStorage with coordinates
