@@ -444,7 +444,7 @@ const ExploreMenu = () => {
         </div>
 
         {/* Login Prompt Modal */}
-        {showLoginPrompt && (
+        {/* {showLoginPrompt && (
           <div className="fixed inset-0 bg-white bg-opacity-50 z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-xl max-w-md w-full p-6 text-center">
               <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
@@ -471,7 +471,108 @@ const ExploreMenu = () => {
               </div>
             </div>
           </div>
-        )}
+        )} */}
+
+
+        {/* Login Prompt Modal */}
+{showLoginPrompt && (
+  <div className="fixed inset-0 z-50 overflow-y-auto">
+    {/* Backdrop with blur effect */}
+    <div 
+      className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+      onClick={() => setShowLoginPrompt(false)}
+    />
+    
+    {/* Modal Container */}
+    <div className="flex min-h-full items-center justify-center p-4">
+      {/* Modal Content */}
+      <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 animate-fadeIn">
+        
+        {/* Close Button */}
+        <button
+          onClick={() => setShowLoginPrompt(false)}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        {/* Icon with gradient background */}
+        <div className="mx-auto w-20 h-20 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center mb-5 shadow-lg">
+          <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+
+        {/* Title */}
+        <h3 className="text-2xl font-bold text-center text-gray-800 mb-2">
+          Login Required
+        </h3>
+
+        {/* Description */}
+        <p className="text-center text-gray-600 mb-6">
+          Please login or signup to add items to your cart and enjoy our delicious meals!
+        </p>
+
+        {/* Feature List */}
+        <div className="bg-gray-50 rounded-lg p-4 mb-6">
+          <div className="flex items-center gap-3 mb-2">
+            <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span className="text-sm text-gray-600">Save your favorite items</span>
+          </div>
+          <div className="flex items-center gap-3 mb-2">
+            <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span className="text-sm text-gray-600">Track your orders in real-time</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span className="text-sm text-gray-600">Get exclusive offers & discounts</span>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => {
+              setShowLoginPrompt(false);
+              navigate('/login');
+            }}
+            className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-3 rounded-xl font-semibold transition transform hover:scale-[1.02] active:scale-[0.98] shadow-md"
+          >
+            Login Now
+          </button>
+          <button
+            onClick={() => setShowLoginPrompt(false)}
+            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold transition transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Maybe Later
+          </button>
+        </div>
+
+        {/* Signup Link */}
+        <p className="text-center text-sm text-gray-500 mt-4">
+          Don't have an account?{' '}
+          <button
+            onClick={() => {
+              setShowLoginPrompt(false);
+              navigate('/login');
+            }}
+            className="text-red-500 hover:text-red-600 font-semibold"
+          >
+            Sign up
+          </button>
+        </p>
+      </div>
+    </div>
+  </div>
+)}
 
         {/* Menu Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
