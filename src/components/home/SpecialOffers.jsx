@@ -13,7 +13,7 @@ const SpecialOffers = () => {
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false); // 👈 Login prompt state
-  
+
   const cartItems = useSelector((state) => state.cart?.cartItems || []);
   const { user } = useSelector((state) => state.auth); // 👈 Get user from Redux
 
@@ -58,7 +58,7 @@ const SpecialOffers = () => {
       setShowLoginPrompt(true); // Show login popup
       return;
     }
-    
+
     console.log('Adding to cart with ID:', product._id);
     dispatch(addToCart(product._id, 1));
   };
@@ -86,132 +86,102 @@ const SpecialOffers = () => {
   return (
     <section className="py-6 sm:py-8 md:py-10 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        
+
+
+
         {/* Login Prompt Modal */}
-        {/* {showLoginPrompt && (
-          <div className="fixed inset-0 bg-white bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl max-w-md w-full p-6 text-center">
-              <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
-                <FaLock className="text-3xl text-red-500" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Login Required</h3>
-              <p className="text-gray-600 mb-6">
-                Please login or signup to add items to your cart.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setShowLoginPrompt(false);
-                    navigate('/login');
-                  }}
-                  className="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg font-semibold transition"
-                >
-                  Login
-                </button>
+        {showLoginPrompt && (
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            {/* Backdrop with blur effect */}
+            <div
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+              onClick={() => setShowLoginPrompt(false)}
+            />
+
+            {/* Modal Container */}
+            <div className="flex min-h-full items-center justify-center p-4">
+              {/* Modal Content */}
+              <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 animate-fadeIn">
+
+                {/* Close Button */}
                 <button
                   onClick={() => setShowLoginPrompt(false)}
-                  className="flex-1 border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 rounded-lg font-semibold transition"
+                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
                 >
-                  Cancel
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
+
+                {/* Icon with gradient background */}
+                <div className="mx-auto w-20 h-20 bg-gradient-to-br from-orange-400 to-red-600 rounded-full flex items-center justify-center mb-5 shadow-lg">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z" />
+                  </svg>
+                </div>
+
+                {/* Title */}
+                <h3 className="text-2xl font-bold text-center text-gray-800 mb-2">
+                  Login Required
+                </h3>
+
+                {/* Description */}
+                <p className="text-center text-gray-600 mb-6">
+                  Please login or signup to add items to your cart and grab these amazing offers!
+                </p>
+
+                {/* Offer Highlights */}
+                <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-4 mb-6 border border-orange-100">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-2xl">🔥</span>
+                    <span className="text-sm text-gray-700">Get exclusive discounts on special offers</span>
+                  </div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-2xl">⚡</span>
+                    <span className="text-sm text-gray-700">Limited time deals just for members</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">🎁</span>
+                    <span className="text-sm text-gray-700">Early access to new dishes</span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => {
+                      setShowLoginPrompt(false);
+                      navigate('/login');
+                    }}
+                    className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white py-3 rounded-xl font-semibold transition transform hover:scale-[1.02] active:scale-[0.98] shadow-md"
+                  >
+                    Login Now
+                  </button>
+                  <button
+                    onClick={() => setShowLoginPrompt(false)}
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold transition transform hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    Maybe Later
+                  </button>
+                </div>
+
+                {/* Signup Link */}
+                <p className="text-center text-sm text-gray-500 mt-4">
+                  New here?{' '}
+                  <button
+                    onClick={() => {
+                      setShowLoginPrompt(false);
+                      navigate('/login');
+                    }}
+                    className="text-red-500 hover:text-red-600 font-semibold"
+                  >
+                    Create an account
+                  </button>
+                </p>
               </div>
             </div>
           </div>
-        )} */}
-
-        {/* Login Prompt Modal */}
-{showLoginPrompt && (
-  <div className="fixed inset-0 z-50 overflow-y-auto">
-    {/* Backdrop with blur effect */}
-    <div 
-      className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
-      onClick={() => setShowLoginPrompt(false)}
-    />
-    
-    {/* Modal Container */}
-    <div className="flex min-h-full items-center justify-center p-4">
-      {/* Modal Content */}
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 animate-fadeIn">
-        
-        {/* Close Button */}
-        <button
-          onClick={() => setShowLoginPrompt(false)}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-
-        {/* Icon with gradient background */}
-        <div className="mx-auto w-20 h-20 bg-gradient-to-br from-orange-400 to-red-600 rounded-full flex items-center justify-center mb-5 shadow-lg">
-          <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z" />
-          </svg>
-        </div>
-
-        {/* Title */}
-        <h3 className="text-2xl font-bold text-center text-gray-800 mb-2">
-          Login Required
-        </h3>
-
-        {/* Description */}
-        <p className="text-center text-gray-600 mb-6">
-          Please login or signup to add items to your cart and grab these amazing offers!
-        </p>
-
-        {/* Offer Highlights */}
-        <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-4 mb-6 border border-orange-100">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-2xl">🔥</span>
-            <span className="text-sm text-gray-700">Get exclusive discounts on special offers</span>
-          </div>
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-2xl">⚡</span>
-            <span className="text-sm text-gray-700">Limited time deals just for members</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🎁</span>
-            <span className="text-sm text-gray-700">Early access to new dishes</span>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            onClick={() => {
-              setShowLoginPrompt(false);
-              navigate('/login');
-            }}
-            className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white py-3 rounded-xl font-semibold transition transform hover:scale-[1.02] active:scale-[0.98] shadow-md"
-          >
-            Login Now
-          </button>
-          <button
-            onClick={() => setShowLoginPrompt(false)}
-            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold transition transform hover:scale-[1.02] active:scale-[0.98]"
-          >
-            Maybe Later
-          </button>
-        </div>
-
-        {/* Signup Link */}
-        <p className="text-center text-sm text-gray-500 mt-4">
-          New here?{' '}
-          <button
-            onClick={() => {
-              setShowLoginPrompt(false);
-              navigate('/login');
-            }}
-            className="text-red-500 hover:text-red-600 font-semibold"
-          >
-            Create an account
-          </button>
-        </p>
-      </div>
-    </div>
-  </div>
-)}
+        )}
 
         {/* Header */}
         <div className="flex items-center justify-between mb-4 sm:mb-6">
@@ -223,7 +193,7 @@ const SpecialOffers = () => {
               Special offers just for you
             </p>
           </div>
-          
+
           {/* Navigation Arrows */}
           <div className="hidden sm:flex space-x-2">
             <button onClick={scrollLeft} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition">
@@ -236,34 +206,34 @@ const SpecialOffers = () => {
         </div>
 
         {/* Horizontal Scrollable Cards */}
-        <div 
+        <div
           ref={scrollContainerRef}
           className="flex overflow-x-auto gap-3 sm:gap-4 pb-4 hide-scrollbar"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {offers.map((product) => {
             const quantity = getItemQuantity(product._id);
-            
+
             return (
-              <div 
+              <div
                 key={product._id}
                 className="flex-none w-70 sm:w-75 md:w-[320px] bg-white rounded-xl shadow-lg hover:shadow-xl transition border border-gray-100"
               >
                 {/* Image Container */}
                 <div className="relative h-40 sm:h-44 md:h-48 rounded-t-xl overflow-hidden">
-                  <img 
+                  <img
                     src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover hover:scale-105 transition duration-300"
                   />
-                  
+
                   {/* Discount Badge */}
                   {product.discount > 0 && (
                     <div className="absolute top-2 left-2 bg-red-500 text-white text-xs sm:text-sm font-bold px-2 py-1 rounded-lg">
                       {product.discount}% OFF
                     </div>
                   )}
-                  
+
                   {/* Bestseller Badge */}
                   {product.isBestseller && (
                     <div className="absolute top-2 right-2 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-lg flex items-center gap-1">
@@ -313,8 +283,8 @@ const SpecialOffers = () => {
                         <span className="text-gray-600">Only {product.stock} left!</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-1.5">
-                        <div 
-                          className="bg-red-500 h-1.5 rounded-full" 
+                        <div
+                          className="bg-red-500 h-1.5 rounded-full"
                           style={{ width: `${(product.stock / 20) * 100}%` }}
                         />
                       </div>
@@ -323,7 +293,7 @@ const SpecialOffers = () => {
 
                   {/* Add to Cart / Quantity Controls */}
                   {quantity === 0 ? (
-                    <button 
+                    <button
                       onClick={() => handleAddToCart(product)}
                       className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 sm:py-2.5 rounded-lg transition transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
                     >
@@ -333,18 +303,18 @@ const SpecialOffers = () => {
                     </button>
                   ) : (
                     <div className="flex items-center justify-between bg-gray-100 rounded-lg p-1">
-                      <button 
+                      <button
                         onClick={() => handleDecrement(product)}
                         className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-lg shadow flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition group"
                       >
                         <FaMinus className="text-sm sm:text-base text-gray-600 group-hover:text-red-500" />
                       </button>
-                      
+
                       <span className="font-bold text-sm sm:text-base text-gray-800">
                         {quantity}
                       </span>
-                      
-                      <button 
+
+                      <button
                         onClick={() => handleIncrement(product)}
                         disabled={quantity >= product.stock}
                         className={`w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-lg shadow flex items-center justify-center transition group

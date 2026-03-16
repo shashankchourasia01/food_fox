@@ -4,49 +4,52 @@ import { MdFormatQuote } from 'react-icons/md';
 
 // 📸 Reviews Data
 const reviewsData = [
+  // 🟢 ENGLISH REVIEWS (2)
   {
     id: 1,
     name: 'Swathi Rao',
     role: 'Startup Founder (HSR Layout)',
     image: '/images/reviews/demo.avif',
     rating: 5,
-    review: 'Working in a startup means no time for cooking. Wealawa meals give me exactly what I need — simple, balanced, and tasty food.',
+    review: 'Perfect for working professionals! Daily tiffin service at 12:30 PM sharp. Food tastes just like home, and the portion size is generous.',
     bgImage: '/images/reviews/demo.avif' 
   },
   {
     id: 2,
     name: 'Rahul Sharma',
     role: 'Software Engineer (Whitefield)',
-    image: '/images/reviews/demo.avif',
+    image: '/images/reviews/demo2.avif',
     rating: 5,
-    review: 'The food quality is amazing! Tastes just like home-cooked food. Delivery is always on time and packaging is great.',
+    review: 'Finally found a reliable tiffin service! Delivery between 12-2 PM, always hot and fresh. Dal Makhani and Roti are amazing.',
     bgImage: '/images/reviews/review-bg.jpg'
   },
+  
+  // 🟡 HINGLISH REVIEWS (3)
   {
     id: 3,
     name: 'Priya Kumar',
     role: 'Doctor (Jayanagar)',
-    image: '/images/reviews/demo.avif',
-    rating: 4,
-    review: 'As a doctor, I have irregular hours. Wealawa has been a lifesaver! Healthy options, fresh food even late at night.',
+    image: '/images/reviews/demo3.avif',
+    rating: 5,
+    review: 'Bohot din baad ghar jaisa khana mila! 12 baje dot on time delivery, aur khaana bhi bilkul home-cooked jaisa. Highly recommend!',
     bgImage: '/images/reviews/review-bg.jpg'
   },
   {
     id: 4,
     name: 'Arjun Reddy',
     role: 'Student (Indiranagar)',
-    image: '/images/reviews/demo.avif',
+    image: '/images/reviews/demo4.avif',
     rating: 5,
-    review: 'Best food delivery for students! Affordable prices, good portions, and the food is actually healthy.',
+    review: 'Subah book kar ke 12:30 tak tiffin mil jaati hai. Price bhi affordable hai aur quality top class. Roti, sabzi, dal perfect combo!',
     bgImage: '/images/reviews/review-bg.jpg'
   },
   {
     id: 5,
     name: 'Kavita Iyer',
     role: 'Homemaker (Koramangala)',
-    image: '/images/reviews/demo.avif',
+    image: '/images/reviews/demo5.avif',
     rating: 5,
-    review: 'Finally a service that understands what "home food" means! My family loves it. Great job team!',
+    review: 'Jab se ye service start ki hai, ghar mein cooking ka tension nahi. Roz naya menu, perfect time pe delivery, and tasty food!',
     bgImage: '/images/reviews/review-bg.jpg'
   }
 ];
