@@ -34,7 +34,7 @@ const CartPage = () => {
   // Calculate totals
   const totalItems = cartItems?.reduce((total, item) => total + item.quantity, 0) || 0;
   const subtotal = cartItems?.reduce((total, item) => total + (item.price * item.quantity), 0) || 0;
-  const deliveryCharge = subtotal > 500 ? 0 : 40;
+  const deliveryCharge = subtotal > 500 ? 0 : 30;
   const total = subtotal + deliveryCharge;
 
   // 🔍 DEBUG: Show login state even if user exists but cart is empty
