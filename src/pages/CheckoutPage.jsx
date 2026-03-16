@@ -44,14 +44,16 @@ const CheckoutPage = () => {
     // 👇 YEH NAYA STATE ADD KARO - Location capture status ke liye
     const [locationStatus, setLocationStatus] = useState('');
 
-    // New address form
+    // New address form (lat/lng from userCoordinates when available)
     const [newAddress, setNewAddress] = useState({
         type: 'home',
         address: '',
         landmark: '',
         city: '',
         pincode: '',
-        isDefault: false
+        isDefault: false,
+        lat: null,
+        lng: null
     });
 
     // Calculate totals
@@ -206,7 +208,7 @@ const validateAddress = (address) => {
         setSelectedAddress(address);
     };
 
-    // Handle edit address
+    // Handle edit address (include lat/lng if present)
     const handleEditAddress = (address) => {
         setEditingAddress(address);
         setNewAddress({
@@ -215,7 +217,9 @@ const validateAddress = (address) => {
             landmark: address.landmark || '',
             city: address.city,
             pincode: address.pincode,
-            isDefault: address.isDefault || false
+            isDefault: address.isDefault || false,
+            lat: address.lat ?? null,
+            lng: address.lng ?? null
         });
         setShowAddressForm(true);
     };
@@ -275,7 +279,7 @@ const validateAddress = (address) => {
         return errors;
     };
 
-    // Add or update address
+    // Add or update address (include lat/lng from localStorage if available)
     const handleSaveAddress = async (e) => {
         e.preventDefault();
 
@@ -285,16 +289,32 @@ const validateAddress = (address) => {
             return;
         }
 
+        const savedCoords = JSON.parse(localStorage.getItem('userCoordinates') || '{}');
+        const addressPayload = {
+            type: newAddress.type,
+            address: newAddress.address,
+            landmark: newAddress.landmark,
+            city: newAddress.city,
+            pincode: newAddress.pincode,
+            isDefault: newAddress.isDefault
+        };
+        // Prefer coords from address (when editing), else from localStorage
+        if (newAddress.lat != null && newAddress.lng != null) {
+            addressPayload.lat = newAddress.lat;
+            addressPayload.lng = newAddress.lng;
+        } else if (savedCoords.latitude != null && savedCoords.longitude != null) {
+            addressPayload.lat = savedCoords.latitude;
+            addressPayload.lng = savedCoords.longitude;
+        }
+
         try {
             setLoading(true);
             
             let response;
             if (editingAddress) {
-                console.log('Updating address:', editingAddress._id, newAddress);
-                response = await addressService.updateAddress(editingAddress._id, newAddress);
+                response = await addressService.updateAddress(editingAddress._id, addressPayload);
             } else {
-                console.log('Adding new address:', newAddress);
-                response = await addressService.addAddress(newAddress);
+                response = await addressService.addAddress(addressPayload);
             }
 
             console.log('Address save response:', response.data);
@@ -326,7 +346,9 @@ const validateAddress = (address) => {
             landmark: '',
             city: '',
             pincode: '',
-            isDefault: false
+            isDefault: false,
+            lat: null,
+            lng: null
         });
         setFormErrors({});
     };
@@ -458,18 +480,12 @@ const validateAddress = (address) => {
         try {
             setLoading(true);
 
-            // Get coordinates from localStorage if available
+            // Get coordinates: prefer selectedAddress lat/lng (from saved address), else localStorage
             const savedCoords = JSON.parse(localStorage.getItem('userCoordinates') || '{}');
+            const finalLat = selectedAddress.lat ?? savedCoords.latitude ?? null;
+            const finalLng = selectedAddress.lng ?? savedCoords.longitude ?? null;
 
-            console.log('📍 Saved coordinates:', savedCoords);
-
-            // ✅ Fix: Use localStorage values
-            const finalLat = savedCoords.latitude || null;
-            const finalLng = savedCoords.longitude || null;
-
-            console.log('📍 Final lat/lng:', { finalLat, finalLng });
-
-            // Prepare order data
+            // Prepare order data (include validated coordinates)
             const orderData = {
                 shippingAddress: {
                     fullName: user?.name || 'Customer',
@@ -479,8 +495,8 @@ const validateAddress = (address) => {
                     city: selectedAddress.city,
                     pincode: selectedAddress.pincode,
                     type: selectedAddress.type || 'home',
-                    lat: savedCoords.latitude || null,
-                    lng: savedCoords.longitude || null
+                    lat: finalLat,
+                    lng: finalLng
                 },
                 itemsPrice: subtotal,
                 deliveryPrice: deliveryCharge,

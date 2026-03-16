@@ -456,22 +456,21 @@
 
 
 import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { FaArrowLeft, FaUser, FaPhone, FaLock, FaWhatsapp } from 'react-icons/fa';
+import { FaArrowLeft, FaUser, FaPhone, FaLock, FaEnvelope } from 'react-icons/fa';
 import { MdTimer } from 'react-icons/md';
-import { sendOTP, verifyOTP, resendOTP } from '../services/api';
+import { sendOTP, verifyOTP, resendOTP, sendOTPEmail, verifyOTPEmail, resendOTPEmail } from '../services/api';
 
 const LoginPage = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Form states
   const [step, setStep] = useState(1);
+  const [method, setMethod] = useState('email'); // 'phone' (SMS) or 'email' (FREE)
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    otp: ['', '', '', '', '', ''] // ✅ 6 digit OTP
+    email: '',
+    otp: ['', '', '', '', '', '']
   });
 
   const [loading, setLoading] = useState(false);
@@ -546,7 +545,8 @@ const LoginPage = () => {
       }
 
     } catch (error) {
-      setError(error.response?.data?.message || 'Failed to send OTP');
+      const msg = error.response?.data?.message || 'Failed to send OTP';
+      setError(error.response?.status === 429 ? `${msg} Try Email OTP for instant login.` : msg);
     } finally {
       setLoading(false);
     }
@@ -609,6 +609,69 @@ const LoginPage = () => {
     setError('');
   };
 
+  const handleSendOTPEmail = async () => {
+    const email = formData.email?.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const response = await sendOTPEmail({ name: formData.name, email });
+      setSuccess('OTP sent to your email!');
+      setOtpSent(true);
+      setStep(3);
+      setTimer(30);
+      setCanResend(false);
+      if (response.data.data?.testOTP) {
+        const testOTP = response.data.data.testOTP.split('');
+        setFormData(prev => ({ ...prev, otp: [...testOTP, ...Array(6 - testOTP.length).fill('')] }));
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to send OTP');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOTPEmail = async () => {
+    const otpString = formData.otp.join('');
+    if (otpString.length !== 6) {
+      setError('Please enter complete 6-digit OTP');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const response = await verifyOTPEmail({ email: formData.email.trim(), otp: otpString });
+      localStorage.setItem('token', response.data.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.data.user));
+      setSuccess('Login successful! Redirecting...');
+      setTimeout(() => navigate('/'), 1000);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid OTP');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendEmail = async () => {
+    if (!canResend) return;
+    setLoading(true);
+    setError('');
+    try {
+      await resendOTPEmail(formData.email.trim());
+      setSuccess('OTP resent to your email!');
+      setTimer(30);
+      setCanResend(false);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to resend OTP');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-linear-to-br from-red-50 to-orange-50 py-6 sm:py-8">
       <div className="container mx-auto px-4">
@@ -625,10 +688,23 @@ const LoginPage = () => {
           </button>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
             {step === 1 && "What's your name?"}
-            {step === 2 && "Your phone number?"}
-            {step === 3 && "Verify OTP"}
+            {step === 2 && (method === 'email' ? 'Your email address?' : 'Your phone number?')}
+            {step === 3 && 'Verify OTP'}
           </h1>
         </div>
+
+        {/* Encourage Email OTP - Free & Instant */}
+        {step === 2 && (
+          <div className="max-w-md mx-auto mb-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+            <p className="text-green-800 font-medium flex items-center gap-2">
+              <FaEnvelope className="text-green-600" />
+              Recommended: Use Email OTP — It's free and instant!
+            </p>
+            <p className="text-green-600 text-sm mt-1">
+              No SMS charges. OTP arrives in seconds. Works on all devices.
+            </p>
+          </div>
+        )}
 
         {/* Error/Success Messages */}
         {error && (
@@ -687,47 +763,107 @@ const LoginPage = () => {
                 </div>
               )}
 
-              {/* Step 2: Phone Input */}
+              {/* Step 2: Phone or Email */}
               {step === 2 && (
                 <div className="space-y-6">
-                  <div className="text-center mb-8">
-                    <div className="w-20 h-20 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
-                      <FaPhone className="text-4xl text-red-500" />
-                    </div>
-                    <p className="text-gray-600">
-                      We'll send a <span className="font-bold">6-digit OTP</span> to verify
+                  {/* Method Toggle: Email (FREE) vs Phone (SMS) */}
+                  <div className="flex rounded-xl overflow-hidden border border-gray-200">
+                    <button
+                      type="button"
+                      onClick={() => { setMethod('email'); setError(''); }}
+                      className={`flex-1 py-3 flex flex-col items-center justify-center gap-0.5 text-sm font-medium transition ${
+                        method === 'email'
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        <FaEnvelope /> Email
+                      </span>
+                      <span className="text-xs font-normal opacity-90">FREE • Instant</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setMethod('phone'); setError(''); }}
+                      className={`flex-1 py-3 flex flex-col items-center justify-center gap-0.5 text-sm font-medium transition ${
+                        method === 'phone'
+                          ? 'bg-red-500 text-white'
+                          : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        <FaPhone /> Phone
+                      </span>
+                      <span className="text-xs font-normal opacity-90">SMS</span>
+                    </button>
+                  </div>
+
+                  <div className="text-center mb-4">
+                    <p className="text-gray-600 text-sm">
+                      {method === 'email'
+                        ? '6-digit OTP sent to your inbox — free, fast, works everywhere'
+                        : '6-digit OTP via SMS — use if you prefer phone'}
                     </p>
                   </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
-                    <div className="flex">
-                      <span className="inline-flex items-center px-4 bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg text-gray-600">
-                        +91
-                      </span>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        placeholder="9876543210"
-                        maxLength="10"
-                        className="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                        autoFocus
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2">Enter 10-digit mobile number</p>
-                  </div>
-                  <button
-                    onClick={handleSendOTP}
-                    disabled={formData.phone.length !== 10 || loading}
-                    className={`w-full py-4 rounded-xl font-semibold text-lg transition ${
-                      formData.phone.length === 10 && !loading
-                        ? 'bg-red-500 hover:bg-red-600 text-white transform hover:scale-[1.02]'
-                        : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                    }`}
-                  >
-                    {loading ? 'Sending...' : 'Send OTP'}
-                  </button>
+
+                  {method === 'email' ? (
+                    <>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          placeholder="you@example.com"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                          autoFocus
+                        />
+                      </div>
+                      <button
+                        onClick={handleSendOTPEmail}
+                        disabled={!formData.email?.trim() || loading}
+                        className={`w-full py-4 rounded-xl font-semibold text-lg transition ${
+                          formData.email?.trim() && !loading
+                            ? 'bg-green-600 hover:bg-green-700 text-white transform hover:scale-[1.02]'
+                            : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        }`}
+                      >
+                        {loading ? 'Sending...' : 'Send OTP to Email'}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+                        <div className="flex">
+                          <span className="inline-flex items-center px-4 bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg text-gray-600">+91</span>
+                          <input
+                            type="tel"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            placeholder="9876543210"
+                            maxLength="10"
+                            className="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                            autoFocus
+                          />
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">Enter 10-digit mobile number</p>
+                      </div>
+                      <button
+                        onClick={handleSendOTP}
+                        disabled={formData.phone.length !== 10 || loading}
+                        className={`w-full py-4 rounded-xl font-semibold text-lg transition ${
+                          formData.phone.length === 10 && !loading
+                            ? 'bg-red-500 hover:bg-red-600 text-white transform hover:scale-[1.02]'
+                            : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        }`}
+                      >
+                        {loading ? 'Sending...' : 'Send OTP'}
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
 
@@ -741,7 +877,9 @@ const LoginPage = () => {
                     <p className="text-gray-600">
                       Enter <span className="font-bold">6-digit OTP</span> sent to
                     </p>
-                    <p className="font-semibold text-gray-800">+91 {formData.phone}</p>
+                    <p className="font-semibold text-gray-800">
+                      {method === 'email' ? formData.email : `+91 ${formData.phone}`}
+                    </p>
                   </div>
 
                   {/* 6-digit OTP Input Boxes */}
@@ -770,7 +908,7 @@ const LoginPage = () => {
                       </p>
                     ) : (
                       <button
-                        onClick={handleResend}
+                        onClick={method === 'email' ? handleResendEmail : handleResend}
                         disabled={loading}
                         className="text-red-500 hover:text-red-600 font-semibold text-sm disabled:opacity-50"
                       >
@@ -781,7 +919,7 @@ const LoginPage = () => {
 
                   {/* Verify Button */}
                   <button
-                    onClick={handleVerifyOTP}
+                    onClick={method === 'email' ? handleVerifyOTPEmail : handleVerifyOTP}
                     disabled={formData.otp.join('').length !== 6 || loading}
                     className={`w-full py-4 rounded-xl font-semibold text-lg transition ${
                       formData.otp.join('').length === 6 && !loading
@@ -814,9 +952,12 @@ const LoginPage = () => {
             </div>
           </div>
 
-          {/* Terms */}
+          {/* Terms & Email tip */}
           <p className="text-xs text-center text-gray-500 mt-6">
             By continuing, you agree to our Terms of Service and Privacy Policy
+          </p>
+          <p className="text-xs text-center text-green-600 mt-2 font-medium">
+            💡 Tip: Email OTP is free — save on SMS costs!
           </p>
         </div>
       </div>

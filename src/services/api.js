@@ -75,14 +75,23 @@ export const deleteUser = (id) => api.delete(`/users/${id}`);
 // AUTH APIS - Add these with other API functions
 // ============================================
 
-// 📌 Send OTP
+// 📌 Send OTP (Phone - SMS, costs ~₹0.25-5 per OTP)
 export const sendOTP = (userData) => api.post('/auth/send-otp', userData);
 
-// 📌 Verify OTP
+// 📌 Verify OTP (Phone)
 export const verifyOTP = (data) => api.post('/auth/verify-otp', data);
 
-// 📌 Resend OTP
+// 📌 Resend OTP (Phone)
 export const resendOTP = (phone) => api.post('/auth/resend-otp', { phone });
+
+// 📌 Send OTP (Email - FREE)
+export const sendOTPEmail = (userData) => api.post('/auth/send-otp-email', userData);
+
+// 📌 Verify OTP (Email)
+export const verifyOTPEmail = (data) => api.post('/auth/verify-otp-email', data);
+
+// 📌 Resend OTP (Email)
+export const resendOTPEmail = (email) => api.post('/auth/resend-otp-email', { email });
 
 // 📌 Get User Profile (after login)
 export const getUserProfile = () => api.get('/auth/profile');

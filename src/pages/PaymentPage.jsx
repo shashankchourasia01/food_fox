@@ -88,7 +88,7 @@ const PaymentPage = () => {
                 key: keyId,
                 amount: order.amount,
                 currency: order.currency || 'INR',
-                name: 'FlavorFix',
+                name: 'Saraswati Tiffin',
                 description: 'Food Order Payment',
                 image: '/logo.png',
                 order_id: order.id,

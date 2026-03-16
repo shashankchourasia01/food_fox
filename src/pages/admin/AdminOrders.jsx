@@ -70,6 +70,7 @@ const AdminOrders = () => {
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Customer</th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Items</th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Total</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Payment</th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Date</th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Actions</th>
@@ -92,6 +93,12 @@ const AdminOrders = () => {
                   </td>
                   <td className="px-4 py-3 text-sm font-semibold">
                     ₹{order.totalPrice}
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    <span className={order.isPaid ? 'text-green-600 font-medium' : 'text-gray-600'}>
+                      {order.paymentMethod}
+                      {order.isPaid && ' ✓'}
+                    </span>
                   </td>
                   <td className="px-4 py-3">
                     <select

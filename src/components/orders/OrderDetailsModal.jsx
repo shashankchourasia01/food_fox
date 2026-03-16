@@ -4,18 +4,18 @@ import { FaTimes, FaMapMarkerAlt, FaCreditCard, FaTruck } from 'react-icons/fa';
 
 const OrderDetailsModal = ({ order, onClose, formatDate, getStatusColor, getStatusIcon }) => {
   
-  // ✅ Google Maps link generate karne ka function
+  // Google Maps link: https://www.google.com/maps?q=lat,lng (view) or /dir/ (navigate)
   const getMapsLink = () => {
-    console.log('📍 Order shippingAddress:', order?.shippingAddress);
-    console.log('📍 Lat exists:', !!order?.shippingAddress?.lat);
-    console.log('📍 Lng exists:', !!order?.shippingAddress?.lng);
-    
-    if (order?.shippingAddress?.lat && order?.shippingAddress?.lng) {
-      const link = `https://www.google.com/maps/dir/?api=1&destination=${order.shippingAddress.lat},${order.shippingAddress.lng}`;
-      console.log('✅ Maps link generated:', link);
-      return link;
+    if (order?.shippingAddress?.lat != null && order?.shippingAddress?.lng != null) {
+      return `https://www.google.com/maps?q=${order.shippingAddress.lat},${order.shippingAddress.lng}`;
     }
-    console.log('❌ No lat/lng found');
+    return null;
+  };
+
+  const getMapsDirectionsLink = () => {
+    if (order?.shippingAddress?.lat != null && order?.shippingAddress?.lng != null) {
+      return `https://www.google.com/maps/dir/?api=1&destination=${order.shippingAddress.lat},${order.shippingAddress.lng}`;
+    }
     return null;
   };
 
@@ -33,6 +33,7 @@ const OrderDetailsModal = ({ order, onClose, formatDate, getStatusColor, getStat
   };
 
   const mapsLink = getMapsLink();
+  const mapsDirectionsLink = getMapsDirectionsLink();
   const staticMapUrl = getStaticMapUrl();
 
   return (
@@ -134,36 +135,48 @@ const OrderDetailsModal = ({ order, onClose, formatDate, getStatusColor, getStat
                 </div>
               )}
               
-              {/* Option 2: Google Maps Link Button */}
-              {mapsLink && (
-                <div className="mt-3 flex flex-col sm:flex-row gap-2">
-                  <a
-                    href={mapsLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-                  >
-                    <FaMapMarkerAlt />
-                    Navigate via Google Maps
-                  </a>
-                  
-                  {/* Alternative: Open in Maps app */}
-                  {order?.shippingAddress?.lat && order?.shippingAddress?.lng && (
+              {/* Coordinates & Google Maps Links */}
+              {order?.shippingAddress?.lat != null && order?.shippingAddress?.lng != null && (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <p className="text-xs font-medium text-gray-500 mb-2">
+                    📍 Location: {order.shippingAddress.lat.toFixed(6)}, {order.shippingAddress.lng.toFixed(6)}
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <a
+                      href={mapsLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                    >
+                      <FaMapMarkerAlt />
+                      View on Google Maps
+                    </a>
+                    {mapsDirectionsLink && (
+                      <a
+                        href={mapsDirectionsLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 inline-flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700 transition text-sm font-medium"
+                      >
+                        <FaMapMarkerAlt />
+                        Get Directions
+                      </a>
+                    )}
                     <a
                       href={`geo:${order.shippingAddress.lat},${order.shippingAddress.lng}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 inline-flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700 transition text-sm font-medium"
+                      className="flex-1 inline-flex items-center justify-center gap-2 bg-gray-600 text-white px-4 py-2.5 rounded-lg hover:bg-gray-700 transition text-sm font-medium"
                     >
                       <FaMapMarkerAlt />
                       Open in Maps App
                     </a>
-                  )}
+                  </div>
                 </div>
               )}
               
               {/* No location message */}
-              {!mapsLink && (
+              {(order?.shippingAddress?.lat == null || order?.shippingAddress?.lng == null) && (
                 <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <p className="text-xs text-yellow-700 flex items-center gap-1">
                     <span>⚠️</span>
@@ -187,6 +200,12 @@ const OrderDetailsModal = ({ order, onClose, formatDate, getStatusColor, getStat
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-gray-600">Payment Method</span>
                 <span className="font-medium">{order?.paymentMethod}</span>
+              </div>
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-gray-600">Payment Status</span>
+                <span className={order?.isPaid ? 'text-green-600 font-medium' : 'text-gray-600'}>
+                  {order?.isPaid ? 'Paid ✓' : 'Pending'}
+                </span>
               </div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-gray-600">Items Total</span>
